@@ -9,7 +9,7 @@ int main(void){
     printf("Digite o 3° número: ");
     scanf(" %i",&n3);
 
-    if(n1 >= n2 && n1>=n3){
+    if(n1 >= n2 && n1>=n3){ //tentar diminuir depois a lógica do exercício
         printf("\n%i é o maior número!\n",n1);
     }else if(n2 >= n1 && n2>=n3){
         printf("\n%i é o maior número!\n",n2);
