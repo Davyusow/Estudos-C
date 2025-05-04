@@ -1,6 +1,6 @@
 #include "stdio.h"
 
-int lerInteiro(char *mensagem) {
+int lerTotalFuncionarios(char *mensagem) {
   int num;
   printf("%s", mensagem);
   while (scanf(" %d", &num) != 1) {
@@ -11,7 +11,7 @@ int lerInteiro(char *mensagem) {
   return num;
 }
 
-float lerFloat(char *mensagem) {
+float lerSalario(char *mensagem) {
   float num;
   printf("%s", mensagem);
   while (scanf(" %f", &num) != 1) {
@@ -24,15 +24,29 @@ float lerFloat(char *mensagem) {
 
 int main(void) {
 
-  int totalFuncionarios = lerInteiro("Quantos funcionários existem na sua empresa? ");
+  int totalFuncionarios = lerTotalFuncionarios("Quantos funcionários existem na sua empresa? ");
   float mediaSalarios = 0;
 
-  for (int i = 0; i < totalFuncionarios; i++) {
+  printf("1° - ");
+  mediaSalarios += lerSalario("Digite o Salário do funcionário: R$");
+  float maiorSalario = mediaSalarios;
+  float menorSalario = mediaSalarios;
+  float comparador;
+
+  for (int i = 1; i < totalFuncionarios; i++) {
     printf("%i° - ", i + 1);    //enumera o funcionário
-    mediaSalarios += lerFloat("Digite o Salário do funcionário: R$");
+    comparador = lerSalario("Digite o Salário do funcionário: R$");
+    mediaSalarios+=comparador;
+
+    if(comparador < menorSalario)
+        menorSalario = comparador;
+    if(comparador > maiorSalario)
+        maiorSalario = comparador;
   }
 
   printf("\nA média salarial dos funcionários é de R$%.2f",mediaSalarios / totalFuncionarios);
+  printf("\nO maior salário foi : R$%.2f",maiorSalario);
+  printf("\nO menor salário foi : R$%.2f\n",menorSalario);
 
   return 0;
 }
