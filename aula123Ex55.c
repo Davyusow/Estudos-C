@@ -10,9 +10,8 @@ void criaMatriz(int matriz[LINHA][COLUNA]) {
   srand(time(NULL));
   for (int y = 0; y < LINHA; y++)
     for (int x = 0; x < COLUNA; x++)
-      matriz[y][x] =
-          rand() %
-          LIMITE; // tirei o sleep porque só precisa de uma matriz criada
+      matriz[y][x] = rand() % LIMITE;
+    // tirei o sleep porque só precisa de uma matriz criada
 }
 
 int main(void) {
