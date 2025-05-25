@@ -1,5 +1,4 @@
 #include "stdio.h"
-#include "stdlib.h"
 
 int lerInteiro(char *mensagem) {
   int valorLido;
