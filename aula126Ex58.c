@@ -167,7 +167,7 @@ int main(void) {
   system("clear");
   do{
     wprintf(L"\nBem vindo ao Jogo da velha!\n"
-        "\nPressione a opcação que deseja:\n"
+        "\nPressione a opção que deseja:\n"
         "⟶ 1 jogar uma partida com a maquina\n"
         "⟶ 2 sair\n");
     opcao = lerInteiro("opção: ");
