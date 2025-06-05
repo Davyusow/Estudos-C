@@ -64,8 +64,8 @@ procedimento mergesort(vetor,inicio,fim)
 
 
 procedimento merge(vetor,inicio,meio,fim)
-  esquerda = meio - inicio + 1
-  direita = fim - meio
+  esquerda[] = vetor[inicio:meio] 
+  direita[] = vetor[meio:fim]
   L,R = 0
   para contador = incio até fim
     se L >= len(esquerda)
