@@ -97,10 +97,10 @@ procedimento quickSort(vetor,primeiro,ultimo)
     quickSort(vetor,chave+1,ultimo)
 
 procedimento particionar(vetor,primeiro,ultimo)
-  ultimoValor = vetor[ultimo]
+  pivo = vetor[ultimo]
   indice = primeiro - 1
-  para comparador = primeiro até ultimo - 1
-    se(vetor[comparador])
+  para comparador = primeiro até ultimo
+    se(vetor[comparador] <= pivo)
       indice++
       temp = vetor[indice]
       vetor[indice] = vetor[comparador]
