@@ -1,62 +1,81 @@
 #include "stdio.h"
+#include "stdlib.h"
+#include <string.h>
 
-#define TAM 100
 #define VERDADEIRO 1
 #define FALSO 0
+#define VAZIO '\0'
 
 typedef struct{
-    char texto[TAM];
+    char* texto;
+    int tamanho;
     int teto;
 }Vetor;
 
-void iniciar(Vetor *v1){
-    v1->teto = -1;
+void iniciar(Vetor *vetor){
+    vetor->teto = -1;
 }
 
-void juntar(Vetor *v1,char c){
-    if(v1->teto < TAM-1){
-        v1->texto[++v1->teto] = c;
+void juntar(Vetor *vetor,char c){
+    if(vetor->teto < vetor->tamanho-1){
+        vetor->texto[++vetor->teto] = c;
     }
 }
 
-char separar(Vetor *v1){
-    if(v1->teto >= 0){
-        return v1->texto[v1->teto--];
+char separar(Vetor *vetor){
+    if(vetor->teto >= 0){
+        return vetor->texto[vetor->teto--];
     }
-    return '\0';
+    return VAZIO;
 }
 
-int comparação(char aberto,char fechado){
+int comparacao(char aberto,char fechado){
     return (aberto == '(' && fechado == ')') ||
     (aberto == '[' && fechado == ']') ||
     (aberto == '{' && fechado == '}');
 }
 
-int bemFormada(char *texto){
-    Vetor vetor;
-    iniciar(&vetor);
-    for(int i=0;texto[i] !='\0';i++){
-        char comparado = texto[i];
-        if(comparado == '(' || comparado == '[' || comparado == '{'){
-            juntar(&vetor,comparado);
-        }else if(comparado == ')' || comparado == ']' || comparado == '}'){
-            char topo = separar(&vetor);
-            if(!comparação(topo,comparado)){
-                return FALSO;   
+int bemFormada(Vetor* vetor) {
+    Vetor pilha;
+    pilha.texto = (char*)malloc(vetor->tamanho * sizeof(char));
+    pilha.tamanho = vetor->tamanho;
+    iniciar(&pilha);
+
+    for (int i = 0; vetor->texto[i] != VAZIO; i++) {
+        char comparado = vetor->texto[i];
+        if (comparado == '(' || comparado == '[' || comparado == '{') {
+            juntar(&pilha, comparado);
+        } else if (comparado == ')' || comparado == ']' || comparado == '}') {
+            char topo = separar(&pilha);
+            if (!comparacao(topo, comparado)) {
+                free(pilha.texto);
+                return FALSO;
             }
         }
     }
-    return vetor.teto = VERDADEIRO;
+
+    int resultado = (pilha.teto == -1) ? VERDADEIRO : FALSO;
+    free(pilha.texto);
+    return resultado;
 }
 
 int main(void){
-    char texto[TAM];
+    Vetor vetor;
+    char buffer[1000];
+
     printf("Digite o texto: ");
-    scanf("%s",texto);
-    if(bemFormada(texto)){
+    scanf("%999s", buffer);
+
+    vetor.tamanho = strlen(buffer) + 1;
+    vetor.texto = (char*)malloc(vetor.tamanho * sizeof(char));
+    strcpy(vetor.texto, buffer);
+
+    if (bemFormada(&vetor)) {
         printf("\nbem formada.");
-    }else{
+    } else {
         printf("\nmal formada");
     }
+
+    free(vetor.texto);
     return 0;
 }
