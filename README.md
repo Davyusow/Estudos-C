@@ -80,7 +80,7 @@ Ex:
 #define FALSE 0
 
 numero1 == numero2 ? TRUE : FALSE;
-         //faz se for verdade↑ : faz se for falso↑
+//   faz se for  verdade↑ : falso↑
 ```
 
 | tipo                | vista |
