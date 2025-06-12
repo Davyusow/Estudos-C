@@ -5,10 +5,10 @@
 
 int tam = 5;
 
-int somaLinha(int matriz[][tam],int linha){
+int somaLinha(int matriz[][tam],int coluna){
     int soma = 0;
     for(int x = 0;x<tam;x++){
-        soma+= matriz[linha][x];
+        soma+= matriz[x][coluna];
     }
     return soma;
 }
@@ -33,8 +33,9 @@ int main(void){
         }
     }
     imprimir(matriz);
+
     for(int indice = 0;indice < tam;indice++)
-        printf("A soma da linha %i é : %i\n",indice,somaLinha(matriz,indice));
+        printf("A soma da coluna %i é : %i\n",indice,somaLinha(matriz,indice));
 
     return 0;
 }
