@@ -1,0 +1,41 @@
+registro NoListaEncadeada
+	inteiro chave
+	NoListaEncadeada anterior
+	NoListaEncadeada proximo
+
+registro ListaEncadeada
+	NoListaEncadeada cabeca
+	
+procedimento imprimirLista(lista)
+	ponteiro = lista.cabeca
+	enquanto ponteiro != NIL
+		imprimir(ponteiro.chave)
+		ponteiro = ponteiro.proximo
+		
+procedimento busca(lista,valor)
+	ponteiro = lista.cabeca
+	se ponteiro != NIL
+		enquanto (ponteiro != NIL && ponteiro.chave != valor)
+			ponteiro = ponteiro.proximo
+	retorne ponteiro
+	
+procedimento inserir(lista, no)
+	ponteiro = busca(lista,no.chave)
+	se (ponteiro == NIL)
+		se (lista.cabeca != NIL)
+			lista.cabeca.anterior = no
+		lista.cabeca = no
+			
+procedimento remover(lista,valor)
+	ponteiro = buscar(lista,valor,anterior)
+	se (ponteiro != NIL)
+		se (ponteiro.anterior == NIL)
+			lista.cabeca = ponteiro.proximo
+		senao
+			ponteiro.anterior = ponteiro.proximo
+		ponteiro.proximo = NIL
+		ponteiro.anterior = NIL
+		
+	retorne ponteiro
+
+

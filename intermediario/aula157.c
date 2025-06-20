@@ -20,7 +20,6 @@ int fibonnaci(int num){
         else
             return fibonnaci(num-1) + fibonnaci(num-2);
     }
-
 }
 
 int main(void){

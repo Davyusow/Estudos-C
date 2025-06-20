@@ -1,0 +1,27 @@
+registro NoListaEncadeada
+	inteiro chave
+	NoListaEncadeada anterior
+	NoListaEncadeada proximo
+
+registro ListaEncadeada
+	NoListaEncadeada cabeca
+
+registro TabelaHashClosed
+	inteiro tamanho
+	Array<ListaDuplaEncadeada> tabelaHash
+
+procedimento buscar(tabela, no)
+	chave = hashFunction(no, tabela.tamanho)
+	lista = tabela.tabelaHash[chave]
+	retorne buscarListaDuplaEncadeada(x,lista)
+
+procedimento inserir(no,tabeela)
+	chave = hashFunction(no.chave, tabela.tamanho)
+	lista = tabela.tabelaHash[chave]
+	inserirListaDuplaEncadeada(no, lista)
+	
+procedimento remover(no,tabela)
+	chave = hashFunction(no, tabela.tamanho)
+	lista = tabela.tabelaHash[chave]
+	retorne removerListaDuplaEncadeada(no, lista)
+

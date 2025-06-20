@@ -1,0 +1,59 @@
+registro NoTabelaHashOpen
+	inteiro chave
+
+registro ListaEncadeada
+	NoListaEncadeada cabeca
+
+registro TabelaHashOpen
+	inteiro tamanho
+	Array<NoTabelaHashOpen> tabelaHash
+	
+procedimento buscar(valor, tabela)
+	ponteiro = NIL
+	chave = hashFunction(valor, tabela.tamanho)
+	se (tabela.tabelaHash[chave] != NIL && tabela.tabelaHash[chave].chave == valor)
+		ponteiro = tabela.tabelaHash[chave]
+	senao
+		i = mod(chave,tabela.tamaho)
+		while(i != chave)
+			se (tabela.tabelaHash[i] != NIL && tabela.tabelaHash[i].chave == valor)
+				ponteiro = tabela.tabelaHash[i]
+				i = chave
+			senao
+				i = mod(i, tabela.tamanho) + 1
+	retorne ponteiro
+		
+procedimento inserir(no, tabela)
+	indice = 0
+	chave = hashFunction(no.chave, tabela.tamanho)
+	se (tabela.tabelaHash[chave] == NIL)
+		tabela.tabelaHash[chave] = no
+		indice = chave
+	senao
+		i = mod(chave, tabela.tamanho) + 1
+		while(i != chave)
+			se(tabela.tabelaHash[i] == NIL)
+				tabela.tabelaHash[i] = no;
+				indice = i
+				i = chave
+			senao
+				i = mod(i, tabela.tamanho) + 1
+	retorne indice
+	
+procedimento remover(no, tabela)
+	ponteiro = NIL
+	chave = hashFunction(no, tabela.tamanho)
+	se(tabela.tabelaHash[chave] != NIL && tabela.tabelaHash[chave] == no.chave)
+		ponteiro = tabela.tabelaHash[chave]
+		tabela.tabelaHash[chave] = NIL
+	senao
+		i = mod(chave, tabela.tamanho) + 1
+		enquanto(i != chave != NIL)
+			se (tabela.tabelaHash[i] != NIL && tabela.tabelaHash[i].chave == no)
+				ponteiro = tabela.tabelaHash[i]
+				tabela.tabelaHash[i] = NIL
+				i = chave
+			senao
+				i = mod(i, tabela.tamanho) + 1
+	retorne ponteiro
+
