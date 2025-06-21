@@ -172,29 +172,26 @@ int vetor[3] = {1,2,3};
   | fgets()   |  ✅   |
   | cores     |  ✅   |
 - ### Funções
-
+  Ex:
+  ```c
+  int somatorio(int inicio, int fim){
+    int resultado;
+    for(int indice = inicio;indice < fim;indice++)
+      resultado += 2;
+    return resultado;
+  }
+  int main(void){
+    int num = somatorio(1,10);
+    return 0;
+  }
+  ```
   | assunto    | vista |
   | ---------- | ----- |
   | declaração | ✅    |
   | retorno    | ✅    |
   | recursiva  | ✅    |
   | assinatura | ✅    |
-
 Ex:
-
-```c
-int somatorio(int inicio, int fim){
-    int resultado;
-    for(int indice = inicio;indice < fim;indice++)
-      resultado += 2;
-    return resultado;
-}
-int main(void){
-    int num = somatorio(1,10);
-    return 0;
-}
-```
-
 - ### Struct
 
   | assunto    | vista |
