@@ -1,4 +1,4 @@
-# Progressão Total (40%)
+# Progressão Total (50%)
 
 ## Básico 📝
 
@@ -152,7 +152,7 @@ int vetor[3] = {1,2,3};
 
 ## Intermédiaro ⌨️
 
-### aulas [127-145...] com os exercícios [...]
+### aulas [127-168...] com os exercícios [...]
 
 - ### Strings
   Ex:
@@ -173,8 +173,33 @@ int vetor[3] = {1,2,3};
   | cores     |  ✅   |
 - ### Funções
 
-  | assunto | vista |
-  | ------- | ----- |
-  | ...     | ...   |
+  | assunto    | vista |
+  | ---------- | ----- |
+  | declaração | ✅    |
+  | retorno    | ✅    |
+  | recursiva  | ✅    |
+  | assinatura | ✅    |
+
+Ex:
+
+```c
+int somatorio(int inicio, int fim){
+    int resultado;
+    for(int indice = inicio;indice < fim;indice++)
+      resultado += 2;
+    return resultado;
+}
+int main(void){
+    int num = somatorio(1,10);
+    return 0;
+}
+```
+
+- ### Struct
+
+  | assunto    | vista |
+  | ---------- | ----- |
+  | declaração | ✅    |
+  | ...        | ...   |
 
   Em andamento...
