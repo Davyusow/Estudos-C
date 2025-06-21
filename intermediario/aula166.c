@@ -1,5 +1,4 @@
 #include "stdio.h"
-#include "stdlib.h"
 #include "wchar.h"
 #include "locale.h"
 #include <wchar.h>
@@ -101,10 +100,10 @@ int jogadaValida(int linha,int coluna){
 
 int lerInteiro(char *mensagem) {
   int valorLido;
-  printf("%s", mensagem);
+  wprintf(L"%s", mensagem);
   while (scanf(" %d", &valorLido) != TRUE) {
     while (getchar() != '\n');
-    printf("%s", mensagem);
+    wprintf(L"%s", mensagem);
   }
   return valorLido;
 }
@@ -140,23 +139,36 @@ void jogar(){
         imprimir();
         if(vez == 1){
             lerCoordenadas(jogador1);
-            vitoriaX = ganhouPorLinhas(jogador1);
-            vitoriaX = ganhouPorColunas(jogador1);
-            vitoriaX = ganhouPorDiagonais(jogador1);
+            vitoriaX = ganhouPorLinhas(jogador1)
+            || ganhouPorColunas(jogador1)
+            || ganhouPorDiagonais(jogador1);
             vez = 2;
         }
         else{
             lerCoordenadas(jogador2);
-            vitoriaO = ganhouPorLinhas(jogador2);
-            vitoriaO = ganhouPorColunas(jogador2);
-            vitoriaO = ganhouPorDiagonais(jogador2);
+            vitoriaO = ganhouPorLinhas(jogador2)
+            || ganhouPorColunas(jogador2)
+            || ganhouPorDiagonais(jogador2);
             vez = 1;
         }
-    }while(vitoriaO == 0 && vitoriaX == 0);
+    }while((vitoriaO == 0 && vitoriaX == 0) && posicoesVazias() > 0);
+
+    if(vitoriaX > 0)
+        wprintf(L"\nVitória do jogador 1! Parabéns!!\n");
+    else if(vitoriaO > 0){
+        wprintf(L"\nVitória do jogador 2! Parabéns!!\n");
+    }else{
+        wprintf(L"\nEmpate!!\n");
+    }
 }
 
 int main(void){
     setlocale(LC_ALL,""); //define para pt_BR ou o idioma do Sistema operacional
-    jogar();
+    int opcao;
+    do{
+        jogar();
+        opcao = lerInteiro("\nDigite 1 para jogar novamente!");
+    }while(opcao == TRUE);
+
     return 0;
 }
