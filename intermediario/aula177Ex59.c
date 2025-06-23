@@ -1,5 +1,7 @@
 // Campo minado
 #include "stdio.h"
+#include "stdlib.h"
+#include "time.h"
 
 int linhas;
 int colunas;
@@ -10,45 +12,67 @@ int bombas;
 #define BRANCO   "\033[37;3m"
 #define VERMELHO "\033[31m"
 #define VERDE    "\033[32m"
-#define LARANJA  "\033[93m"
+#define AMARELO_SATURADO  "\033[93m"
 #define AZUL     "\033[34m"
 #define AMARELO  "\033[33m"
 #define ROXO     "\033[35m"
-#define PRETO    "\033[30m"
+#define VERMELHO_SATURADO  "\033[91m"
+//elementos:
+#define BOMBA 8
+//dificuldade
+#define FACIL 1
+#define MEDIO 2
+#define DIFICIL 3
+//lógicos
+#define TRUE 1
+#define FALSE 0
 
-void imprimirValor(int valor, int largura) {
-  switch (valor) {
-  case -1:
-    printf(" %s%*d%s |", BRANCO, largura, valor, NEUTRO);
-    break;
-  case 0:
-    printf(" %s%*d%s |", BRANCO, largura, valor, NEUTRO);
-    break;
-  case 1:
-    printf(" %s%*d%s |", VERDE, largura, valor, NEUTRO);
-    break;
-  case 2:
-    printf(" %s%*d%s |", AZUL, largura, valor, NEUTRO);
-    break;
-  case 3:
-    printf(" %s%*d%s |", AMARELO, largura, valor, NEUTRO);
-    break;
-  case 4:
-    printf(" %s%*d%s |", LARANJA, largura, valor, NEUTRO);
-    break;
-  case 5:
-    printf(" %s%*d%s |", ROXO, largura, valor, NEUTRO);
-    break;
-  case 6:
-    printf(" %s%*d%s |", VERMELHO, largura, valor, NEUTRO);
-    break;
-  case 7:
-    printf(" %s%*d%s |", PRETO, largura, valor, NEUTRO);
-    break;
+
+typedef struct{
+  int valor;
+  int oculto;
+}Valor;
+
+void imprimirValor(Valor elemento, int largura) {
+  if(elemento.oculto == FALSE){
+    switch (elemento.valor) {
+      default:
+        printf(" %s%*c%s |", BRANCO, largura, '!', NEUTRO);
+      break;
+      case 0:
+        printf(" %s%*i%s |", BRANCO, largura, elemento.valor, NEUTRO);
+        break;
+      case 1:
+        printf(" %s%*i%s |", VERDE, largura, elemento.valor, NEUTRO);
+        break;
+      case 2:
+        printf(" %s%*i%s |", AZUL, largura, elemento.valor, NEUTRO);
+        break;
+      case 3:
+        printf(" %s%*i%s |", AMARELO, largura, elemento.valor, NEUTRO);
+        break;
+      case 4:
+        printf(" %s%*i%s |", AMARELO_SATURADO, largura, elemento.valor, NEUTRO);
+        break;
+      case 5:
+        printf(" %s%*i%s |", ROXO, largura, elemento.valor, NEUTRO);
+        break;
+      case 6:
+        printf(" %s%*i%s |", VERMELHO, largura, elemento.valor, NEUTRO);
+        break;
+      case 7:
+        printf(" %s%*i%s |", VERMELHO_SATURADO, largura, elemento.valor, NEUTRO);
+        break;
+      case BOMBA:
+        printf(" %s%*c%s |", VERMELHO_SATURADO, largura, '#', NEUTRO);
+        break;
+    }
+  }else {
+    printf(" %s%*c%s |", BRANCO, largura, '?', NEUTRO);
   }
 }
 
-void imprimirMatriz(int matriz[linhas][colunas]) {
+void imprimirMatriz(Valor matriz[linhas][colunas]) {
   // Primeiro, determina a largura necessária para os índices
   int largura = 1; // largura mínima
   int maiorDigito = (linhas > colunas) ? linhas : colunas;
@@ -56,11 +80,9 @@ void imprimirMatriz(int matriz[linhas][colunas]) {
   largura++;
 
   // Imprime o cabeçalho com os índices das colunas
-  printf("%*s", largura + 1, ""); //%*s faz com que imprima a string "" com
-                                  //largura+1 espaços em brancha à esquerda
+  printf("%*s", largura + 1, ""); //%*s faz com que imprima a string "" com largura+1 espaços em brancha à esquerda
   for (int coluna = 0; coluna < colunas; coluna++) {
-    printf(" %*d |", largura,
-           coluna); // imprime a coluna com  a largura de cima de espaçamento
+    printf(" %*d |", largura, coluna); // imprime a coluna com  a largura de cima de espaçamento
   }
   printf("\n");
   // Imprime uma linha separadora
@@ -89,17 +111,107 @@ void imprimirMatriz(int matriz[linhas][colunas]) {
   }
 }
 
-void iniciarMatriz(int matriz[linhas][colunas]) {
+
+int sorteio(int dificuldade){
+  switch (dificuldade) {
+    case FACIL:
+      if(rand() % 100 >= 80)
+        return BOMBA;
+      else
+        return 0;
+      break;
+    case MEDIO:
+      if(rand() % 100 >= 70)
+        return BOMBA;
+      else
+        return 0;
+      break;
+    case DIFICIL:
+      if(rand() % 100 >= 60)
+        return BOMBA;
+      else
+        return 0;
+      break;
+    default:
+      return 0;
+      break;
+  }
+}
+
+int valida(Valor matriz[linhas][colunas],int linha,int coluna){
+  int resultado = 0;
+  for (int i = -1; i <= 1; i++) {
+    for (int j = -1; j <= 1; j++) {
+      if (i == 0 && j == 0) continue; 
+      
+      int nLinha = linha + i;
+      int nColuna = coluna + j;
+
+      if (nLinha >= 0 && nLinha < linhas && 
+        nColuna >= 0 && nColuna < colunas) {
+        if (matriz[nLinha][nColuna].valor == BOMBA) {
+          resultado++;
+        }
+      }
+    }
+  }
+  return resultado;
+}
+
+void iniciarMatriz(Valor matriz[linhas][colunas],int dificuldade) {
   for (int linha = 0; linha < linhas; linha++) {
     for (int coluna = 0; coluna < colunas; coluna++) {
-      matriz[linha][coluna] = -1;
+      matriz[linha][coluna].oculto = TRUE;
+      matriz[linha][coluna].valor = sorteio(dificuldade);
+    }
+  }
+
+  for (int linha = 0; linha < linhas; linha++) {
+    for (int coluna = 0; coluna < colunas; coluna++) {
+      if(matriz[linha][coluna].valor != BOMBA)
+        matriz[linha][coluna].valor = valida(matriz, linha, coluna);
     }
   }
 }
 
+int lerInteiro(char *mensagem) {
+  int valorLido;
+  printf("%s", mensagem);
+  while (scanf(" %d", &valorLido) != TRUE) {
+    while (getchar() != '\n');
+    printf("%s", mensagem);
+  }
+  return valorLido;
+}
+
+
 int main(void) {
-  linhas = 8, colunas = 8;
-  int matriz[linhas][colunas];
-  iniciarMatriz(matriz);
+  srand(time(NULL));
+  linhas = 16, colunas = 16;
+  
+  int dificuldade;
+  printf("Bem vindo à o campo minado!\n"
+    "Selencione a dificuldade que você deseja jogar!\n"
+    "1 - Fácil\n"
+    "2 - Médio\n"
+    "3 - Difícil\n");
+  do{
+    dificuldade = lerInteiro("Dificuldade: ");
+  }while(dificuldade < 0 && dificuldade);
+  
+  switch (dificuldade) {
+    case FACIL:
+      linhas = 16; colunas = 16;;
+    break;
+    case MEDIO:
+      linhas = 20; colunas = 20;
+    break;
+    case DIFICIL:
+      linhas = 24; colunas = 24;  
+    break;
+  }
+  
+  Valor matriz[linhas][colunas];
+  iniciarMatriz(matriz,dificuldade);
   imprimirMatriz(matriz);
 }
