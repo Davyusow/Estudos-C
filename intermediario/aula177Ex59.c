@@ -6,6 +6,7 @@
 int linhas;
 int colunas;
 int bombas;
+int escondidos = 0;
 
 // cores
 #define NEUTRO   "\033[m"
@@ -109,25 +110,26 @@ void imprimirMatriz(Valor matriz[linhas][colunas]) {
     }
     printf("\n");
   }
+  printf("Bombas: %i\tBlocos escondidos: %i",bombas,escondidos);
 }
 
 
 int sorteio(int dificuldade){
   switch (dificuldade) {
     case FACIL:
-      if(rand() % 100 >= 80)
+      if(rand() % 100 >= 80 && bombas < 10)
         return BOMBA;
       else
         return 0;
       break;
     case MEDIO:
-      if(rand() % 100 >= 70)
+      if(rand() % 100 >= 85 && bombas < 40)
         return BOMBA;
       else
         return 0;
       break;
     case DIFICIL:
-      if(rand() % 100 >= 60)
+      if(rand() % 100 >= 78 && bombas < 99)
         return BOMBA;
       else
         return 0;
@@ -142,12 +144,12 @@ int valida(Valor matriz[linhas][colunas],int linha,int coluna){
   int resultado = 0;
   for (int i = -1; i <= 1; i++) {
     for (int j = -1; j <= 1; j++) {
-      if (i == 0 && j == 0) continue; 
-      
+      if (i == 0 && j == 0) continue;
+
       int nLinha = linha + i;
       int nColuna = coluna + j;
 
-      if (nLinha >= 0 && nLinha < linhas && 
+      if (nLinha >= 0 && nLinha < linhas &&
         nColuna >= 0 && nColuna < colunas) {
         if (matriz[nLinha][nColuna].valor == BOMBA) {
           resultado++;
@@ -163,13 +165,18 @@ void iniciarMatriz(Valor matriz[linhas][colunas],int dificuldade) {
     for (int coluna = 0; coluna < colunas; coluna++) {
       matriz[linha][coluna].oculto = TRUE;
       matriz[linha][coluna].valor = sorteio(dificuldade);
+      if(matriz[linha][coluna].valor == BOMBA)
+        bombas++;
+      else
+        escondidos++;
     }
   }
 
   for (int linha = 0; linha < linhas; linha++) {
     for (int coluna = 0; coluna < colunas; coluna++) {
-      if(matriz[linha][coluna].valor != BOMBA)
+      if(matriz[linha][coluna].valor != BOMBA){
         matriz[linha][coluna].valor = valida(matriz, linha, coluna);
+      }
     }
   }
 }
@@ -184,11 +191,54 @@ int lerInteiro(char *mensagem) {
   return valorLido;
 }
 
+void revelaBombas(Valor matriz[linhas][colunas]){
+  for(int linha = 0;linha < linhas;linha++){
+    for(int coluna = 0;coluna < colunas;coluna++){
+      if(matriz[linha][coluna].valor == BOMBA){
+        matriz[linha][coluna].oculto = FALSE;
+      }
+    }
+  }
+}
+
+
+void revela(Valor matriz[linhas][colunas], int linha, int coluna){
+    if (linha < 0 || linha >= linhas || coluna < 0 || coluna >= colunas || 
+        matriz[linha][coluna].oculto == FALSE) {
+        return;
+    }
+    
+    matriz[linha][coluna].oculto = FALSE;
+    escondidos--;
+    
+    if (matriz[linha][coluna].valor == 0) {
+        for (int i = -1; i <= 1; i++) {
+            for (int j = -1; j <= 1; j++) {
+                if (i == 0 && j == 0) continue;
+                revela(matriz, linha + i, coluna + j);
+            }
+        }
+    }
+}
+
+
+int jogada(Valor matriz[linhas][colunas]){
+  int linha = lerInteiro("\nEscolha a linha:");
+  int coluna = lerInteiro("Escolha a coluna:");
+  if (matriz[linha][coluna].valor >= 0 && matriz[linha][coluna].valor <= 7 && matriz[linha][coluna].oculto == TRUE){
+    revela(matriz,linha,coluna);
+    return TRUE;
+  }else{
+    revelaBombas(matriz);
+    return FALSE;
+  }
+}
+
 
 int main(void) {
   srand(time(NULL));
   linhas = 16, colunas = 16;
-  
+  system("clear");
   int dificuldade;
   printf("Bem vindo à o campo minado!\n"
     "Selencione a dificuldade que você deseja jogar!\n"
@@ -198,20 +248,27 @@ int main(void) {
   do{
     dificuldade = lerInteiro("Dificuldade: ");
   }while(dificuldade < 0 && dificuldade);
-  
+
   switch (dificuldade) {
     case FACIL:
-      linhas = 16; colunas = 16;;
+      linhas = 8; colunas = 8;
     break;
     case MEDIO:
-      linhas = 20; colunas = 20;
+      linhas = 16; colunas = 16;
     break;
     case DIFICIL:
-      linhas = 24; colunas = 24;  
+      linhas = 16; colunas = 30;
     break;
   }
-  
+
   Valor matriz[linhas][colunas];
   iniciarMatriz(matriz,dificuldade);
+  imprimirMatriz(matriz);
+  while(jogada(matriz) != FALSE){
+    system("clear");
+    imprimirMatriz(matriz);
+  }
+  system("clear");
+  printf("Você pisou em uma bomba!\nVocê perdeu!");
   imprimirMatriz(matriz);
 }
