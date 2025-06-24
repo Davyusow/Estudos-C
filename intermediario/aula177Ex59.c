@@ -16,8 +16,9 @@ int escondidos = 0;
 #define AMARELO_SATURADO  "\033[93m"
 #define AZUL     "\033[34m"
 #define AMARELO  "\033[33m"
-#define ROXO     "\033[35m"
+#define ROXO     "\033[36m"
 #define VERMELHO_SATURADO  "\033[91m"
+#define BRANCO_FUNDO_VERDE   "\033[37;42m"
 //elementos:
 #define BOMBA 8
 //dificuldade
@@ -69,7 +70,7 @@ void imprimirValor(Valor elemento, int largura) {
         break;
     }
   }else {
-    printf(" %s%*c%s |", BRANCO, largura, '?', NEUTRO);
+    printf(" %s%*c%s |", BRANCO_FUNDO_VERDE, largura, '?', NEUTRO);
   }
 }
 
@@ -225,12 +226,18 @@ void revela(Valor matriz[linhas][colunas], int linha, int coluna){
 int jogada(Valor matriz[linhas][colunas]){
   int linha = lerInteiro("\nEscolha a linha:");
   int coluna = lerInteiro("Escolha a coluna:");
-  if (matriz[linha][coluna].valor >= 0 && matriz[linha][coluna].valor <= 7 && matriz[linha][coluna].oculto == TRUE){
-    revela(matriz,linha,coluna);
+  if (linha >= 0 && linha < linhas && coluna >= 0 && coluna < colunas && 
+    matriz[linha][coluna].oculto == TRUE) {
+    if (matriz[linha][coluna].valor == BOMBA) {
+        revelaBombas(matriz);
+        return FALSE;
+    } else {
+        revela(matriz, linha, coluna);
+        return TRUE;
+    }
+} else {
+    printf("Posição inválida!\n");
     return TRUE;
-  }else{
-    revelaBombas(matriz);
-    return FALSE;
   }
 }
 
@@ -264,11 +271,16 @@ int main(void) {
   Valor matriz[linhas][colunas];
   iniciarMatriz(matriz,dificuldade);
   imprimirMatriz(matriz);
-  while(jogada(matriz) != FALSE){
+  while(jogada(matriz) != FALSE && escondidos != 0){
     system("clear");
     imprimirMatriz(matriz);
   }
   system("clear");
-  printf("Você pisou em uma bomba!\nVocê perdeu!");
+  if(escondidos == 0){
+    printf("\nVocê venceu!\nParabéns!\n");
+    revelaBombas(matriz);
+  }
+  else
+    printf("\nVocê pisou em uma bomba!\nVocê perdeu!\n");
   imprimirMatriz(matriz);
 }
