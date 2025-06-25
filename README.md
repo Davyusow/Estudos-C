@@ -1,4 +1,6 @@
-# Progressão Total (50%)
+# Tópicos da Linguagem
+
+## Progressão Total (50%)
 
 ## Básico 📝
 
@@ -138,10 +140,13 @@ int vetor[3] = {1,2,3};
 |     manipulações     |  ✅   |
 
 - ### Matrizes multi-dimensionais
+
   Ex:
+
   ```c
   int matriz[2][2] = {{1,2},{3,4}};
   ```
+
   |          assunto          | vista |
   | :-----------------------: | :---: |
   | declaração (tipo [][]...) |  ✅   |
@@ -155,11 +160,14 @@ int vetor[3] = {1,2,3};
 ### aulas [127-168...] com os exercícios [...]
 
 - ### Strings
+
   Ex:
+
   ```c
   char palavra[11] = "Muito ";
   strcat(palavra, "Bom!"); //palavra = Muito Bom!
   ```
+
   | Funções   | vista |
   | :-------- | :---: |
   | strlen()  |  ✅   |
@@ -171,8 +179,11 @@ int vetor[3] = {1,2,3};
   | strtok()  |  ✅   |
   | fgets()   |  ✅   |
   | cores     |  ✅   |
+
 - ### Funções
+
   Ex:
+
   ```c
   int somatorio(int inicio, int fim){
     int resultado;
@@ -185,18 +196,26 @@ int vetor[3] = {1,2,3};
     return 0;
   }
   ```
+
   | assunto    | vista |
   | ---------- | ----- |
   | declaração | ✅    |
   | retorno    | ✅    |
   | recursiva  | ✅    |
   | assinatura | ✅    |
-Ex:
+
 - ### Struct
 
   | assunto    | vista |
   | ---------- | ----- |
-  | declaração | ✅    |
-  | ...        | ...   |
+  | Tipos      | ✅    |
+  | Declaração | ✅    |
+  | Chamada    | ✅    |
+  | Atribuição | ✅    |
+  | Relações   | ✅    |
 
+- ### Ponteiros
+  | assunto | vista |
+  | ------- | ----- |
+  | ...     | ...   |
   Em andamento...
