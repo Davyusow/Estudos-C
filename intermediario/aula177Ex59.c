@@ -78,8 +78,9 @@ void imprimirMatriz(Valor matriz[linhas][colunas]) {
   // Primeiro, determina a largura necessária para os índices
   int largura = 1; // largura mínima
   int maiorDigito = (linhas > colunas) ? linhas : colunas;
-  while (maiorDigito /= 10)
-  largura++;
+  while (maiorDigito /= 10){
+      largura++;
+  }
 
   // Imprime o cabeçalho com os índices das colunas
   printf("%*s", largura + 1, ""); //%*s faz com que imprima a string "" com largura+1 espaços em brancha à esquerda
@@ -204,14 +205,14 @@ void revelaBombas(Valor matriz[linhas][colunas]){
 
 
 void revela(Valor matriz[linhas][colunas], int linha, int coluna){
-    if (linha < 0 || linha >= linhas || coluna < 0 || coluna >= colunas || 
+    if (linha < 0 || linha >= linhas || coluna < 0 || coluna >= colunas ||
         matriz[linha][coluna].oculto == FALSE) {
         return;
     }
-    
+
     matriz[linha][coluna].oculto = FALSE;
     escondidos--;
-    
+
     if (matriz[linha][coluna].valor == 0) {
         for (int i = -1; i <= 1; i++) {
             for (int j = -1; j <= 1; j++) {
@@ -226,7 +227,7 @@ void revela(Valor matriz[linhas][colunas], int linha, int coluna){
 int jogada(Valor matriz[linhas][colunas]){
   int linha = lerInteiro("\nEscolha a linha:");
   int coluna = lerInteiro("Escolha a coluna:");
-  if (linha >= 0 && linha < linhas && coluna >= 0 && coluna < colunas && 
+  if (linha >= 0 && linha < linhas && coluna >= 0 && coluna < colunas &&
     matriz[linha][coluna].oculto == TRUE) {
     if (matriz[linha][coluna].valor == BOMBA) {
         revelaBombas(matriz);
