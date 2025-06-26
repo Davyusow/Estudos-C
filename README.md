@@ -215,7 +215,14 @@ int vetor[3] = {1,2,3};
   | Relações   | ✅    |
 
 - ### Ponteiros
-  | assunto | vista |
-  | ------- | ----- |
-  | ...     | ...   |
+  | assunto    | vista |
+  | ---------- | ----- |
+  | Declaração | ✅    |
+  | Chamada    | ✅    |
+  | Atribuição | ✅    |
+  | Relações   | ✅    |
+  | malloc     | ✅    |
+  | calloc     | ✅    |
+  | realloc    | ✅    |
+  | ...        | ...   |
   Em andamento...
