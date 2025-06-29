@@ -225,4 +225,5 @@ int vetor[3] = {1,2,3};
   | calloc     | ✅    |
   | realloc    | ✅    |
   | ...        | ...   |
+
   Em andamento...
