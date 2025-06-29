@@ -1,115 +1,305 @@
 #include "stdio.h"
 #include "stdlib.h"
 
-#pragma region //structs
-typedef struct cadeia{
-    int chave;
-    struct cadeia *proximo;
-}cadeia;
+// contantes lógicos
+#define TRUE 1
+#define FALSE 0
+#define NAO_ENCONTRADO -1
+#define NIL -1
 
-typedef struct{
-    struct cadeia *inicio;
-    int tam;
-}Lista;
-#pragma endregion
+// constantes da tabela Hash
+#define VAZIO 0
+#define OCUPADO 1
+#define REMOVIDO 2
 
-#define TAM 31
-#pragma region //funções
+// constantes do menu
+#define VER 1
+#define INSERIR 2
+#define BUSCAR 3
+#define EXCLUIR 4
+#define SAIR 0
 
-void inserirNaLista(Lista *l,int valor){
-    cadeia *novo = malloc(sizeof(cadeia));
-    if(novo){
-        novo->chave = valor;
-        novo->proximo = l->inicio;
-        l->inicio = novo;
-        l->tam++;
-    }else{
-        printf("\nErro ao alocar a memória");
+// seleção da lista
+#define SEQUENCIAL 0
+#define ENCADEADA 1
+
+typedef struct {
+  int chave;
+  int estado;
+} Registro; // open addres
+
+typedef struct No {
+  int chave;
+  struct No *prox;
+  struct No *anterior;
+} No; // closed addres
+
+typedef struct {
+  int tamanho;
+  int ocupados;
+  Registro *dados;
+  No **lista;
+  int usandoLista;
+} TabelaHash;
+
+int funcaoHash(TabelaHash *tabela, int chave) {
+  return chave % tabela->tamanho;
+}
+
+void iniciaTabela(TabelaHash *tabela, int tamanho) {
+  tabela->tamanho = tamanho;
+  tabela->dados = (Registro *)malloc(sizeof(Registro) * tamanho);
+  tabela->usandoLista = SEQUENCIAL;
+
+  for (int i = 0; i < tamanho; i++) {
+    tabela->dados[i].chave = NIL;
+    tabela->dados[i].estado = VAZIO;
+  }
+  tabela->ocupados = 0;
+  tabela->lista = NULL;
+}
+
+int buscaTabela(TabelaHash *tabela, int chave) {
+  if (tabela->usandoLista == SEQUENCIAL) {
+    int indice = funcaoHash(tabela, chave);
+    int contador = 0;
+    while (contador < tabela->tamanho) {
+      if (tabela->dados[indice].estado == VAZIO)
+        return NAO_ENCONTRADO;
+      if (tabela->dados[indice].estado == OCUPADO &&
+          tabela->dados[indice].chave == chave)
+        return indice;
+      indice = (indice + 1) % tabela->tamanho; // sondagem linear
+      contador++;
     }
-}
-
-int buscarNaLista(Lista *l,int valor){
-    cadeia *aux = l->inicio;
-    while(aux && aux->chave != valor){
-        aux = aux->proximo;
-    }if(aux){
-        return aux->chave;
+    return NAO_ENCONTRADO;
+  } else if (tabela->usandoLista == ENCADEADA) { // closed addres com lista ligada
+    int indice = funcaoHash(tabela, chave);
+    No *atual = tabela->lista[indice];
+    while (atual != NULL) {
+      if (atual->chave == chave)
+        return indice;
+      atual = atual->prox;
     }
-    return 0;
+  }
+  return NAO_ENCONTRADO;
 }
 
-void imprimirLista(Lista *l){
-    cadeia *aux = l->inicio;
-    printf(" Tam: %d => ", l->tam);
-    while(aux){
-        printf("%d -> ", aux->chave);
-        aux = aux->proximo;
+void trocaLista(TabelaHash *tabela) {
+  printf("Mudando para closed addressing...\n");
+  tabela->lista = (No **)malloc(sizeof(No *) * tabela->tamanho);
+  for (int i = 0; i < tabela->tamanho; i++) {
+    tabela->lista[i] = NULL;
+  }
+  for (int i = 0; i < tabela->tamanho; i++) {
+    if (tabela->dados[i].estado == OCUPADO) {
+      int chave = tabela->dados[i].chave;
+      int indice = funcaoHash(tabela, chave);
+
+      No *novo = (No *)malloc(sizeof(No));
+      novo->chave = chave;
+      novo->prox = tabela->lista[indice];
+      novo->anterior = NULL;
+      if (tabela->lista[indice] != NULL)
+        tabela->lista[indice]->anterior = novo;
+
+      tabela->lista[indice] = novo;
     }
-    printf("NULL");
+  }
+  free(tabela->dados);
+  tabela->dados = NULL;
+  tabela->usandoLista = ENCADEADA;
 }
 
-int hash(int chave){
-    return chave % TAM;
-}
+int inserirTabela(TabelaHash *tabela, int chave) {
+  if (buscaTabela(tabela, chave) != NAO_ENCONTRADO) {
+    printf("Elemento já inserido na tabela!\n");
+    return FALSE;
+  }
 
-void inserir(Lista t[],int valor){
-    int id = hash(valor);
-    inserirNaLista(&t[id],valor);
-}
+  if (tabela->usandoLista == SEQUENCIAL) {
+    int indice = funcaoHash(tabela, chave);
+    int contador = 0;
 
-int buscar(Lista t[],int chave){
-    int id = hash(chave);
-    return buscarNaLista(&t[id],chave);
-}
-
-void imprimir(Lista *lista){
-    for(int i = 0; i < TAM; i++){
-    printf("\nIndice %d:", i);
-    imprimirLista(&lista[i]);
-}
-}
-#pragma endregion
-
-int main(void){
-
-    int opcao,valor,retorno;
-    Lista tabela01[TAM];
-    for(int i = 0; i < TAM; i++){
-        tabela01[i].inicio = NULL;
-        tabela01[i].tam = 0;
+    while (contador < tabela->tamanho) {
+      if (tabela->dados[indice].estado != OCUPADO) {
+        tabela->dados[indice].chave = chave;
+        tabela->dados[indice].estado = OCUPADO;
+        tabela->ocupados++;
+        return TRUE;
+      }
+      indice = (indice + 1) % tabela->tamanho;
+      contador++;
     }
+    printf("Tabela Hash cheia!\n"); // usar closed address hashing
+    trocaLista(tabela);
+    inserirTabela(tabela,chave);
+    return FALSE;
+  } else if (tabela->usandoLista == ENCADEADA) {
+    int indice = funcaoHash(tabela, chave);
 
+    No *novo = (No *)malloc(sizeof(No));
+    novo->chave = chave;
+    novo->prox = tabela->lista[indice];
+    novo->anterior = NULL;
 
-    do{
-        printf("\n\n Digite 1 para inserir \n Digite 2 para buscar \n Digite 3 para imprimir \n Digite 4 para sair");
-        scanf("%d",&opcao);
-        switch(opcao){
-            case 1:
-                printf("\nQual valor deseja inserir?");
-                scanf("%d",&valor);
-                inserir(tabela01,valor);
-                break;
-            break;
-            case 2:
-                printf("\nQual valor deseja buscar?");
-                scanf("%d",&valor);
-                retorno = buscar(tabela01,valor);
-                if(retorno){
-                    printf("O valor encontrado foi %d\n",retorno);
-                }else{
-                    printf("O valor não foi encontrado\n");
-                }
-            break;
-            case 3:
-                imprimir(tabela01);
-            break;
-            case 4:
-                printf("\nSaindo...");
-            break;
-            default:
-                printf("Opcção inválida");
+    if (tabela->lista[indice] != NULL)
+      tabela->lista[indice]->anterior = novo;
+
+    tabela->lista[indice] = novo;
+    tabela->ocupados++;
+    return TRUE;
+  }
+  return FALSE;
+}
+
+int excluirTabela(TabelaHash *tabela, int chave) {
+  if (tabela->usandoLista == SEQUENCIAL) {
+    int indice = buscaTabela(tabela, chave);
+    if (indice == NAO_ENCONTRADO) {
+      return FALSE;
+    }
+    tabela->dados[indice].estado = REMOVIDO;
+    tabela->ocupados--;
+    return TRUE;
+  } else if (tabela->usandoLista == ENCADEADA) {
+    int indice = funcaoHash(tabela, chave);
+    No *atual = tabela->lista[indice];
+    No *anterior = NULL;
+
+    while (atual != NULL) {
+      if (atual->chave == chave) {
+        if (atual->anterior == NULL) {
+          tabela->lista[indice] = atual->prox;
+          if (atual->prox != NULL) {
+            atual->prox->anterior = NULL;
+          }
+        } else {
+          atual->anterior->prox = atual->prox;
+          if (atual->prox != NULL) {
+            atual->prox->anterior = atual->anterior;
+          }
         }
-    }while(opcao!=4);
+        free(atual);
+        return TRUE;
+      }
+      atual = atual->prox;
+    }
+    return FALSE;
+  }
+  return FALSE;
+}
 
-    return 0;
+void imprimeTabela(TabelaHash *tabela) {
+  printf("[ ");
+
+  if (tabela->usandoLista == SEQUENCIAL) {
+    for (int i = 0; i < tabela->tamanho; i++) {
+      if (tabela->dados[i].estado == REMOVIDO ||
+          tabela->dados[i].estado == VAZIO)
+        printf("NIL ");
+      else
+        printf("%i ", tabela->dados[i].chave);
+    }
+  } else if (tabela->usandoLista == ENCADEADA) {
+    for (int i = 0; i < tabela->tamanho; i++) {
+      No *atual = tabela->lista[i];
+      while (atual != NULL) {
+        printf("%i ", atual->chave);
+        atual = atual->prox;
+      }
+    }
+  }
+  printf("]\n");
+}
+
+int lerInteiro(char *mensagem) {
+  int valorLido;
+  printf("%s", mensagem);
+  while (scanf(" %d", &valorLido) != TRUE) {
+    while (getchar() != '\n')
+      printf("%s", mensagem);
+  }
+  return valorLido;
+}
+
+int main(void) {
+
+  TabelaHash tabela;
+  int opcao, tamanho;
+
+  printf("Primeiramente, insira o tamanho(inteiro maior que 0) desejado para o vetor.\n");
+
+  do {
+    tamanho = lerInteiro("Tamanho: ");
+  } while (tamanho < 1);
+
+  iniciaTabela(&tabela, tamanho);
+
+  do {
+    int tempChave = NIL;
+    if(tabela.usandoLista == SEQUENCIAL){
+      printf("---------------------------------------"
+           "\nLista Linear Sequencial com Tabela Hash\n"
+           "---------------------------------------\n");}
+
+    else if(tabela.usandoLista == ENCADEADA){
+      printf("------------------------------------------"
+           "\nLista Duplamente Encadeada com Tabela Hash\n"
+           "------------------------------------------\n");}
+
+    printf(" Digite um número para escolher a opção:  \n"
+           " 1 ⟶ Para Imprimir o vetor\n"
+           " 2 ⟶ Para inserir um valor\n"
+           " 3 ⟶ Para buscar um valor\n"
+           " 4 ⟶ Para excluir um valor\n"
+           " 0 ⟶ Para sair\n");
+    opcao = lerInteiro("Opção: ");
+
+    switch (opcao) {
+    default:
+      system("clear");
+      printf("Opção inválida!\n");
+      break;
+    case VER:
+      system("clear");
+      printf("Imprimindo...\n");
+      imprimeTabela(&tabela);
+      break;
+    case INSERIR:
+      system("clear");
+      printf("Inserindo...\n");
+      tempChave =
+          lerInteiro("Insira aqui o valor da chave que deseja inserir: ");
+      inserirTabela(&tabela, tempChave);
+      break;
+    case BUSCAR:
+      system("clear");
+      printf("Buscando...\n");
+      tempChave = lerInteiro("Digite o valor que deseja buscar: ");
+      int tempBusca = buscaTabela(&tabela, tempChave);
+      if (tempBusca != NAO_ENCONTRADO)
+        printf("O valor %i foi encontrado no índice %i.\n", tempChave, tempBusca);
+      else
+        printf("%i não esta presente no vetor.\n", tempChave);
+      break;
+    case EXCLUIR:
+      system("clear");
+      printf("Excluindo...\n");
+      tempChave = lerInteiro("Digite o valor que deseja remover da tabela: ");
+      if (excluirTabela(&tabela, tempChave) == TRUE)
+        printf("Valor removido com sucesso!\n");
+      else
+        printf("Valor não existe na tabela!\n");
+      break;
+    case SAIR:
+      system("clear");
+      printf("Saindo...\n");
+      break;
+    }
+
+  } while (opcao != SAIR);
+  printf("Até logo!");
+  free(tabela.dados);
+  return 0;
 }
