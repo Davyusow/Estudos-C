@@ -178,8 +178,9 @@ printf("---------------------------------------"
     case VER:
       system("clear");
       printf("Imprimindo...\n");
+      printf("[ ");
       imprimir(arvore.raiz);
-      printf("\n");
+      printf("]\n");
       break;
     case INSERIR:
       system("clear");
