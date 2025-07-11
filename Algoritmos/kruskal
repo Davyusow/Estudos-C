@@ -1,0 +1,23 @@
+procedimento bubbleSort(aresta,tam)
+	para i = 0 até tam - 1 
+		para j = 0 até tam - 1
+			se aresta[i].peso < aresta[i+1].peso
+				temp = aresta[i]
+				aresta[i] = aresta[i+1]
+				aresta[i+1] = temp
+
+procedimento kruskal(Grafo,V,E)
+	MST = []
+	bubbleSort(E)
+	
+	para cada v em V
+		makeSet(vertice)
+
+	para cada aresta (u,v) em E
+		se findSet(u) != findSet(v) 
+			MST.adicionar(u,v)
+			union(u,v)
+			se tamanho(MST) == V-1
+				parar
+	retorna MST
+	

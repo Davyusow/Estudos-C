@@ -1,0 +1,13 @@
+procedimento encontrarPrimMST(Grafo, matrizPesos, verticeInicial, numVertices)
+	para cada u em Grafo.vertices
+		u.chave = Inf //Inf é infinito positivo
+		u.pai = NULL
+	verticeInicial = 0
+	Q = criarListaPrioridadeMinima(Grafo.vertices, numVertices)
+	enquanto Q.tamanhoHeap > 0
+		u = extrairMinimo(Q, Q.tamanhoHeap)
+		para cada v em u.vizinhança
+			se (v pertence a Q) e (matrizPesos[u][v] < v.chave)
+				v.pai = u
+				v.chave = matrizPesos[u][v]
+	
