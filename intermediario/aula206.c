@@ -14,7 +14,6 @@ int main(void){
     for(linha = 0; linha < LINHAS; linha++)
         matriz[linha] = malloc(sizeof(int) * COLUNAS); //aloca os vetores matriz
 
-
     for(linha = 0 ; linha < LINHAS; linha++)
         for(coluna = 0 ;coluna < COLUNAS;coluna++)
             matriz[linha][coluna] = rand() % 100;
@@ -26,6 +25,9 @@ int main(void){
         printf("\n");
     }
 
+    for(linha = 0;linha < LINHAS;linha++)
+        free(matriz[linha]);
+    free(matriz);
 
     return 0;
 }

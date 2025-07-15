@@ -17,14 +17,14 @@ int main(void){
 
     for(linha = 0 ; linha < LINHAS; linha++)
         for(coluna = 0 ;coluna < COLUNAS;coluna++)
-            matriz[linha][coluna] = rand() % 100;
+            *(*(matriz + linha) + coluna) = rand() % 100;
 
     for(linha = 0 ; linha < LINHAS; linha++){
         for(coluna = 0 ;coluna < COLUNAS;coluna++){
-            printf("%-2i ",matriz[linha][coluna]);
+            printf("%-2i ",*(*(matriz + linha) + coluna));
         }
         printf("\n");
-    }
+    } 
 
 
     return 0;
