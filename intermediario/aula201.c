@@ -27,13 +27,9 @@ int main(void){
       printf("%i ",vet[i]);
     }
 
-
-    //retorna um ponteiro para uma região de memória com
-    //o primeiro parâmetro é o vetor, o segundo é o novo tamanho
-    //o realloc cria um vetor com o novo tamanho com uma cópia dos dados do vetor anterior
-    //indiretamante aumentando o tamanho
   }else
     printf("Erro ao alocar memória");
 
+  free(vet); //libera a memória pré alocada
   return 0;
 }

@@ -1,0 +1,20 @@
+Dijkstra
+
+procedimento iniciarFonteUnica(Grafo, verticeFonte)
+	para cada vertice em Grafo.vertices
+		vertice.distancia = Inf
+		vertice.pai = NULL
+	verticeFonte.distancia = 0
+	
+procedimento relaxarNo( vertice1, vertice2, matrizPesos)
+	se vertice2.distancia > vertice1.distancia + matrizPesos[vertice1][vertice2]
+		vertice2.distancia = vertice1.distancia + matrizPesos[vertice1][vertice2]
+		vertice2.pai = vertice1
+		
+procedimento Dijkstra(Grafo, matrizPesos, verticeFonte, numVertices)
+	iniciarFonteUnica(Grafo, verticeFonte)
+	Q = criarListaPrioridadeMinima(Grafo.vertices, numVertices)
+	enquanto Q.tamanhoHeap > 0
+		u = extrairMinimo(Q,Q.tamanhoHeap)
+		para cada v em u.vizinhança
+			relaxarNo(u, v, matrizPesos)
