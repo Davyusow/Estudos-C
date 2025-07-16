@@ -1,0 +1,3 @@
+Nome: BELTRANO
+Idade: 2
+Altura: 2.00
