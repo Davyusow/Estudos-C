@@ -1,5 +1,6 @@
 #include "stdio.h"
 #include "stdlib.h"
+#include <stdio.h>
 
 //constantes lógicas
 #define TAM 50
@@ -18,23 +19,22 @@ typedef struct Contato{
     int dia, mes, ano;
 }Contato;
 
-void imprimir(Contato **contato,int quant){ //ponteiro para ponteiro pois a agenda é um array e ponteiro (dois *)
+void imprimir(Contato **contatos,int quant){ //ponteiro para ponteiro pois a agenda é um array e ponteiro (dois *)
     printf("\nLista de Contatos: \n\n");
     for(int indice = 0;indice < quant; indice++){
-        printf("id: %i = %2i/%2i/%4i  %s",indice + 1,
-            contato[indice]->dia, contato[indice]->mes, contato[indice]->ano, contato[indice]->nome);
+        printf("id: %i = %2i/%2i/%4i  %s\n",indice + 1,
+            contatos[indice]->dia, contatos[indice]->mes, contatos[indice]->ano, contatos[indice]->nome);
     }
 }
 
-int cadastrarContato(Contato **contato, int quant){
+int cadastrarContato(Contato **contatos, int quant){
     if(quant < TAM){
         Contato *novo = malloc(sizeof(Contato));
         printf("Digite seu nome: ");
-        fgets(novo->nome,sizeof(char) * 50,stdin);
-
+        scanf("%50[^\n]",novo->nome);
         printf("Digite a data de nascimento: dd/mm/aaaa: ");
         scanf(" %i/%i/%i",&novo->dia,&novo->mes,&novo->ano);
-        contato[quant] = novo;
+        contatos[quant] = novo;
         return TRUE;
     }else{
         printf("\nImpossível cadastrar, vetor cheito!\n");
@@ -42,18 +42,70 @@ int cadastrarContato(Contato **contato, int quant){
     }
 }
 
-void aleterarContato(Contato **contato, int quant){
-    imprimir(contato, quant);
+void aleterarContato(Contato **contatos, int quant){
+    imprimir(contatos, quant);
     int id;
     printf("\nDigite o id do contato que deseja alterar: ");
     scanf(" %i",&id); id--;
     getchar();
 
     if(id >= 0 && id < quant){
-        cadastrarContato(contato, id);
+        cadastrarContato(contatos, id);
     }else{
         printf("\nid inválido!");
     }
+}
+
+void salvar(Contato **contatos, int quant, char file[]) {
+    FILE *arquivo = fopen(file, "w");
+    if (arquivo) {
+        fprintf(arquivo, "%d\n", quant);
+        for (int i = 0; i < quant; i++) {
+            fprintf(arquivo, "%s\n", contatos[i]->nome);
+            fprintf(arquivo, "%d/%d/%d\n", contatos[i]->dia, contatos[i]->mes, contatos[i]->ano);
+        }
+        fclose(arquivo);
+    } else {
+        printf("\nErro ao abrir o arquivo!");
+    }
+}
+
+int carregar(Contato **contatos, int quant, char file[]) {
+    FILE *arquivo = fopen(file, "r");
+    if (arquivo == NULL) {
+        printf("\nErro ao carregar o arquivo\n");
+        return FALSE;
+    }
+
+    for(int i = 0; i < quant; i++){
+        free(contatos[i]);
+    }
+
+    int quantidadeArquivo;
+    if (fscanf(arquivo, "%d", &quantidadeArquivo) != 1) {
+        printf("\nErro ao ler a quantidade de contatos do arquivo.\n");
+        fclose(arquivo);
+        return FALSE;
+    }
+    fgetc(arquivo);
+    for (int i = 0; i < quantidadeArquivo; i++) {
+        Contato *novo = malloc(sizeof(Contato));
+        if (novo == NULL) {
+            printf("\nErro ao alocar memória para o contato %d!\n", i + 1);
+            fclose(arquivo);
+            return i;
+        }
+
+        fscanf(arquivo, "%49[^\n]", novo->nome);
+        fscanf(arquivo, " %d/%d/%d", &novo->dia, &novo->mes, &novo->ano);
+        fgetc(arquivo);
+
+        contatos[i] = novo;
+    }
+
+    fclose(arquivo);
+    printf("\n%d contatos carregados!\n", quantidadeArquivo);
+    return quantidadeArquivo;
 }
 
 int lerInteiro(char *mensagem){
@@ -68,12 +120,15 @@ int lerInteiro(char *mensagem){
 
 int main(void){
     Contato *agenda[TAM];
+    char arquivo[] = {"resources/agenda.txt"};
     int quantidade = 0, opcao = 0;
     do{
         printf("\nDigite a opção desejada:\n"
             "1 -> Cadastrar\n"
             "2 -> Editar\n"
             "3 -> Imprimir\n"
+            "4 -> Salvar\n"
+            "5 -> Carregar\n"
             "0 -> Sair\n");
         opcao = lerInteiro("Opção: ");
         getchar();
@@ -90,12 +145,20 @@ int main(void){
             case IMPRIMIR:
                 imprimir(agenda, quantidade);
             break;
+            case SALVAR:
+                salvar(agenda, quantidade, arquivo);
+            break;
+            case CARREGAR:
+                quantidade = carregar(agenda,quantidade ,arquivo);
+            break;
             case SAIR:
                 printf("\nAté logo!\n");
             break;
         }
     }while(opcao != 0);
 
-    free(*agenda);
+    for(int i = 0; i < quantidade; i++){
+        free(agenda[i]);
+    }
     return 0;
 }
