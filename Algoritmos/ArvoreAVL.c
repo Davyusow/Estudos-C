@@ -11,14 +11,13 @@
 #define TRUE 1
 #define FALSE 0
 
-typedef struct No
-{
+typedef struct No{
   int dado;
   int altura;
   int alturaEsq;
   int alturaDir;
   int fatorBalanceamento;
-  No *pai;
+  struct No *pai;
   struct No *esquerda;
   struct No *direita;
 } No;
@@ -103,16 +102,6 @@ void inserir(Arvore *arvore, int chave){
   }
 }
 
-int inserirAVL(Arvore *arvore, int chave){
-  inserir(arvore,chave);
-  if(verificarBalanceamento(arvore->raiz))
-    return chave;
-  else{
-    //balancear com todos os casos
-  }
-  
-}
-
 void calculaBalanceamento(No *elemento){
   if (elemento->esquerda != NULL)
     elemento->alturaEsq = 1;
@@ -124,8 +113,9 @@ void calculaBalanceamento(No *elemento){
     elemento->direita = 0;
 
   elemento->fatorBalanceamento = elemento->alturaDir - elemento->alturaEsq;
-  elemento->altura = elemento->alturaDir > elemento->alturaEsq ? elemento->alturaDir + 1 : elemento->alturaEsq + 1 ; 
+  elemento->altura = elemento->alturaDir > elemento->alturaEsq ? elemento->alturaDir + 1 : elemento->alturaEsq + 1 ;
 }
+
 int verificarBalanceamento(No *raiz){
   if (raiz == NULL)
     return FALSE;
@@ -140,6 +130,15 @@ int verificarBalanceamento(No *raiz){
   }
 }
 
+int inserirAVL(Arvore *arvore, int chave){
+  inserir(arvore,chave);
+  if(verificarBalanceamento(arvore->raiz))
+    return chave;
+  else{
+    //balancear com todos os casos
+  }
+
+}
 
 No *encontrarMinimo(No *no)
 {
@@ -231,7 +230,7 @@ int excluirAVL(Arvore *arvore, int chave){
   else{
     //balancear com todos os casos
   }
-  
+
 }
 
 int lerInteiro(char *mensagem)
