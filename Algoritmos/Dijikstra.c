@@ -4,7 +4,7 @@
 #include <stdlib.h>
 
 #define SAIR 0
-#define PRIM 1
+#define DIJKSTRA 1
 
 typedef struct No {
   int vertice;
@@ -104,50 +104,52 @@ int **lerGrafo(int *valor) {
   return grafo;
 }
 
-void prim() {
-  int limite;
+void dijkstra() {
+  int limite, origem;
   int **grafo = lerGrafo(&limite);
 
-  int parente[limite];
-  int chave[limite];
+  printf("Digite o vértice de origem (0 a %i): ", limite - 1);
+  scanf(" %i", &origem);
+
+  int dist[limite];
   MinHeap *heap = criarMinHeap(limite);
 
-  for (int vertice = 0; vertice < limite; vertice++) {
-    parente[vertice] = -1;
-    chave[vertice] = INT_MAX;
-    heap->dados[vertice].vertice = vertice;
-    heap->dados[vertice].chave = INT_MAX;
-    heap->pos[vertice] = vertice;
+  for (int v = 0; v < limite; v++) {
+    dist[v] = INT_MAX;
+    heap->dados[v].vertice = v;
+    heap->dados[v].chave = dist[v];
+    heap->pos[v] = v;
   }
 
-  chave[0] = 0;
-  heap->dados[0].chave = 0;
+  dist[origem] = 0;
+  reduzChave(heap, origem, dist[origem]);
   heap->tamanho = limite;
 
   while (heap->tamanho > 0) {
-    No menorNo = extrairMinimo(heap);
-    int u = menorNo.vertice;
+    No minimo = extrairMinimo(heap);
+    int u = minimo.vertice;
 
     for (int v = 0; v < limite; v++) {
-      if (grafo[u][v] && dentroDoHeap(heap, v) && grafo[u][v] < chave[v]) {
-        parente[v] = u;
-        chave[v] = grafo[u][v];
-        reduzChave(heap, v, chave[v]);
+      if (grafo[u][v] && dist[u] != INT_MAX &&
+          dist[u] + grafo[u][v] < dist[v]) {
+        dist[v] = dist[u] + grafo[u][v];
+        reduzChave(heap, v, dist[v]);
       }
     }
   }
 
-  printf("Árvore geradora mínima:\n");
-  printf("Aresta \tPeso\n");
-  for (int indice = 1; indice < limite; indice++) {
-    if (parente[indice] != -1) {
-      printf("%d - %d \t%d\n", parente[indice], indice, grafo[indice][parente[indice]]);
+  printf("\nCaminhos mais curtos a partir do vértice %d:\n", origem);
+  printf("Vértice \tDistância\n");
+  for (int i = 0; i < limite; i++) {
+    if (dist[i] != INT_MAX) {
+      printf("%d \t\t%d\n", i, dist[i]);
+    } else {
+      printf("%d \t\tInalcançável\n", i);
     }
   }
 
-  for (int i = 0; i < limite; i++) {
+  for (int i = 0; i < limite; i++)
     free(grafo[i]);
-  }
   free(grafo);
   free(heap->dados);
   free(heap->pos);
@@ -168,21 +170,21 @@ int lerInteiro(char *mensagem) {
 int main(void) {
 
   int opcao;
-
+  
   do {
     printf("----------------------------------------"
-           "\n Grafo com algorítmo de Prim\n"
+           "\n Grafo com algorítmo de Dijkstra\n"
            "----------------------------------------\n");
     printf(" Digite um número para escolher a opção:  \n"
-           " 1 -> Executar algorítmo de Prim\n"
+           " 1 -> Executar algorítmo de Dijkstra\n"
            " 0 -> Para sair\n");
     opcao = lerInteiro("Opção: ");
     switch (opcao) {
     default:
       printf("Opção inválida!");
       break;
-    case PRIM:
-      prim();
+    case DIJKSTRA:
+        dijkstra();
       break;
     case SAIR:
       printf("Até logo!\n");
