@@ -37,6 +37,7 @@ void InsertionSort(int vetor[TAM], int tamanho) {
   for (contador = 1; contador < tamanho; contador++) {  //para o segundo elemento do vetor até o último
     chave = vetor[contador];    //a chave sera o elemento atual comparado
     revisador = contador - 1;   //o revisador é o índice anterior da chave
+    imprimeVetor(vetor, tamanho);
     while (revisador >= 0 && vetor[revisador] > chave) {    //enquanto o revisador estiver no vetor e for maior que a chave
     //se a segunda verificação for falsa, isso quer dizer que o vetor esta ordenado na esquerda e ele sairá do loop
       vetor[revisador + 1] = vetor[revisador]; // Desloca o elemento maior para a direita para abrir espaço para a chave
