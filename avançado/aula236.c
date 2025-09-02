@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 
 typedef struct no{
   int valor;
@@ -27,7 +28,7 @@ void inserir(No **fila, int num){
   }
 }
 
-void remover(No **fila){
+No* remover(No **fila){
   No *remover = NULL;
   
   if(fila){
@@ -36,9 +37,62 @@ void remover(No **fila){
   }else{
     printf("\nFila vazia!");
   }
+
+  return remover;
 }
 
+void imprimir(No *fila){
+  printf("\t-----------Fila-----------");
+  while(fila){
+    printf("%d", fila->valor);
+    fila = fila->proximo;
+  }
+  printf("\t--------Fim da Fila-------");
+}
+
+int lerInteiro(char *mensagem) {
+  int valorLido;
+  printf("%s", mensagem);
+  while (scanf(" %d", &valorLido) != true) {
+    while (getchar() != '\n')
+      printf("%s", mensagem);
+  }
+  return valorLido;
+}
+
+
+#define SAIR 0
+#define INSERIR 1
+#define REMOVER 2
+#define IMPRIMIR 3
+
+
 int main(void){
+
+  No *removido, *fila = NULL;
+  int opcao;
+
+  do{
+    printf("\t0 - Sair\n\t1 - Inserir\n\t2 - Remover\n\t3 - Imprimir\n");
+    scanf("%i",&opcao);
+    switch (opcao) {
+    case INSERIR:
+      inserir(&fila, lerInteiro("Digite um valor: ")); 
+    break;
+    case REMOVER:
+      removido = remover(&fila);
+      if(removido)
+    break;
+    case IMPRIMIR:
+      imprimir(fila);
+    break;
+    case SAIR:
+    break;
+    default:
+      printf("\nOpção inválida!\n");
+    break;
+    }
+  }while(opcao != SAIR);
 
   return 0;
 }
