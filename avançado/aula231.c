@@ -83,6 +83,9 @@ int formatador(char x[]) {
         return true; //mal formada
       }
       free(remover);
+    }else{
+      printf("\tExpressão mal formada\n");
+      return true;
     }
     i++;
   }
