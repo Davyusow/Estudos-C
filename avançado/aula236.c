@@ -27,6 +27,17 @@ void inserir(No **fila, int num){
   }
 }
 
+void remover(No **fila){
+  No *remover = NULL;
+  
+  if(fila){
+    remover = *fila;
+    *fila = remover->proximo;
+  }else{
+    printf("\nFila vazia!");
+  }
+}
+
 int main(void){
 
   return 0;
