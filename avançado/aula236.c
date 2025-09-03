@@ -42,12 +42,12 @@ No* remover(No **fila){
 }
 
 void imprimir(No *fila){
-  printf("\t-----------Fila-----------");
+  printf("\n\t-----------Fila-----------\n");
   while(fila){
-    printf("%d", fila->valor);
+    printf("%d ", fila->valor);
     fila = fila->proximo;
   }
-  printf("\t--------Fim da Fila-------");
+  printf("\n\t--------Fim da Fila-------\n");
 }
 
 int lerInteiro(char *mensagem) {
