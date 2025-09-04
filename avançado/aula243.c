@@ -1,3 +1,4 @@
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -59,4 +60,60 @@ void inserirMeio(No **lista, int num, int ant) {
   }
 }
 
-int main(void) { return 0; }
+void imprimir(No *no) {
+  printf("\nLista: \n");
+  while (no) {
+    printf("%i ", no->valor);
+    no = no->proximo;
+  }
+  printf("\n");
+}
+
+int lerInteiro(char *mensagem) {
+  int valorLido;
+  printf("%s", mensagem);
+  while (scanf(" %d", &valorLido) != true) {
+    while (getchar() != '\n')
+      printf("%s", mensagem);
+  }
+  return valorLido;
+}
+
+#define SAIR 0
+#define INSERIR_INICIO 1
+#define INSERIR_MEIO 2
+#define INSERIR_FIM 3
+#define IMPRIMIR 4
+
+int main(void) {
+
+  No *lista = NULL;
+
+  int opcao = 0;
+  do {
+    printf("\t0 - Sair\n\t1 - Inserir no início\n\t2 - inserir no meio\n\t3 - "
+           "inserir no fim\n\t4 - Imprimir\n");
+    scanf("%i", &opcao);
+    switch (opcao) {
+    case INSERIR_INICIO:
+      inserirInicio(&lista, lerInteiro("\nInsira um valor: "));
+      break;
+    case INSERIR_MEIO:
+      inserirMeio(&lista, lerInteiro("\nInsira um valor: "),
+                  lerInteiro("\nInsira a chave: "));
+      break;
+    case INSERIR_FIM:
+      inserirFim(&lista, lerInteiro("\nInsira um valor: "));
+      break;
+    case IMPRIMIR:
+      imprimir(lista);
+      break;
+    case SAIR:
+      break;
+    default:
+      printf("\nOpção inválida!\n");
+      break;
+    }
+  } while (opcao != SAIR);
+  return 0;
+}
