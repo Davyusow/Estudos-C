@@ -38,4 +38,25 @@ void inserirFim(No **lista, int num) {
   }
 }
 
+void inserirMeio(No **lista, int num, int ant) {
+  No *aux, *novo = malloc(sizeof(No));
+  if (novo) {
+    novo->valor = num;
+    // caso seja o primeiro
+    if (*lista == NULL) {
+      novo->proximo = NULL;
+      *lista = novo;
+    } else { // caso não esteja vazia
+      aux = *lista;
+      while (aux->valor != ant && aux->proximo) {
+        aux = aux->proximo;
+      }
+      novo->proximo = aux->proximo;
+      aux->proximo = novo;
+    }
+  } else {
+    printf("Erro ao alocar memória!\n");
+  }
+}
+
 int main(void) { return 0; }
