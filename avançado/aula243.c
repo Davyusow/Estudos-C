@@ -1,23 +1,41 @@
-#include <stdlib.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 typedef struct no {
   int valor;
   struct no *proximo;
 } No;
 
-void inserirInicio(No **lista, int num){
+void inserirInicio(No **lista, int num) {
   No *novo = malloc(sizeof(No));
-  if(novo){
+  if (novo) {
     novo->valor = num;
     novo->proximo = *lista;
     *lista = novo;
-  }else{
+  } else {
     printf("Erro ao alocar memória!\n");
   }
 }
 
-int main(void) {
+void inserirFim(No **lista, int num) {
+  No *aux, *novo = malloc(sizeof(No));
+  if (novo) {
+    novo->valor = num;
+    novo->proximo = NULL;
 
-  return 0;
+    // caso seja o primeiro
+    if (*lista == NULL) {
+      *lista = novo;
+    } else {
+      aux = *lista;
+      while (aux->proximo) {
+        aux = aux->proximo;
+      }
+      aux->proximo = novo;
+    }
+  } else {
+    printf("Erro ao alocar memória!\n");
+  }
 }
+
+int main(void) { return 0; }
