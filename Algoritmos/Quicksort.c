@@ -15,7 +15,7 @@
 #define ORDENAR 5
 #define SAIR 0
 
-typedef struct Vetor { 
+typedef struct Vetor {
     int *dados;
     int ultimo;
     int tamanho;
@@ -23,7 +23,7 @@ typedef struct Vetor {
 
 int totalTrocas = 0;
 
-void imprimeVetor(Vetor vetor) { 
+void imprimeVetor(Vetor vetor) {
   printf("[ ");
   for (int i = 0; i < vetor.ultimo; i++) {
       printf("%i ", vetor.dados[i]);
@@ -56,9 +56,16 @@ int particionar(Vetor* vetor,int inicio,int fim){
 
 void quickSort(Vetor* vetor,int inicio,int fim){
     if(inicio < fim){
-        int chave = particionar(vetor,inicio,fim);    
+        printf("particionar <%d><%d>\n", inicio, fim);
+        int chave = particionar(vetor,inicio,fim);
+
+        printf("quick sort <%d><%d>: empilhado!\n", inicio, chave-1);
         quickSort(vetor,inicio, chave-1);
+        printf("quick sort <%d><%d>: desempilhado!\n", inicio, chave-1);
+
+        printf("quick sort <%d><%d>: empilhado!\n", chave+1, fim);
         quickSort(vetor,chave+1, fim);
+        printf("quick sort <%d><%d>: desempilhado!\n", chave+1, fim);
     }
 }
 
@@ -75,7 +82,7 @@ int buscaSequencial(Vetor* vetor, int chave){
 
 void insercaoSequencial(Vetor* vetor,int chave){
   if(vetor->ultimo < vetor->tamanho){
-    if(buscaSequencial(vetor, chave) == NAO_ENCONTRADO){            
+    if(buscaSequencial(vetor, chave) == NAO_ENCONTRADO){
       vetor->dados[vetor->ultimo] = chave;
         vetor->ultimo++;
         printf("Valor inserido com sucesso!\n");
@@ -90,8 +97,8 @@ void insercaoSequencial(Vetor* vetor,int chave){
 }
 
 int excluir(Vetor* vetor,int chave){
-  int indice;  
-  int posicao = buscaSequencial(vetor, chave);  
+  int indice;
+  int posicao = buscaSequencial(vetor, chave);
   if(posicao == NAO_ENCONTRADO) return FALSE;
   for(indice = posicao; indice < vetor->ultimo-1;indice++)
     vetor->dados[indice] = vetor->dados[indice+1];
@@ -129,7 +136,7 @@ printf("----------------------------------------"
         " 5 ⟶ Para Ordenar o vetor (QuickSort)\n"
         " 0 ⟶ Para sair\n");
         opcao = lerInteiro("Opção: ");
-      
+
   switch(opcao){
     default:
       system("clear");
@@ -190,4 +197,3 @@ printf("----------------------------------------"
   free(vetor.dados);
   return 0;
 }
-

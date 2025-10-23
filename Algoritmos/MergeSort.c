@@ -61,7 +61,7 @@ void merge(Vetor *vetor, int inicio, int meio, int fim) {
     return;
   }
 
-  printf("Merge: [");
+  printf("merge: [");
   for (int i = 0; i < esquerda.tamanho; i++)
     printf(" %d", esquerda.dados[i]);
   printf(" ] + [");
@@ -88,16 +88,18 @@ void mergeSort(Vetor *vetor, int inicio, int fim) {
   if (fim - inicio > 1) {
     int meio = (inicio + fim) / 2;
 
-    printf("Dividindo: [");
-    for (int i = inicio; i < fim; i++)
-      printf(" %d", vetor->dados[i]);
-    printf(" ] em [%d:%d] e [%d:%d]\n", inicio, meio, meio, fim);
-
+    printf("mergesort <%d><%d>: empilhado!\n", inicio, meio);
     mergeSort(vetor, inicio, meio);
+    printf("mergesort <%d><%d>: desempilhado!\n", inicio, meio);
+
+    printf("mergesort <%d><%d>: empilhado!\n", meio, fim);
     mergeSort(vetor, meio, fim);
+    printf("mergesort <%d><%d>: desempilhado!\n", meio, fim);
+
+    printf("merge <%d><%d><%d>\n", inicio, meio, fim);
     merge(vetor, inicio, meio, fim);
 
-    printf("Após o merge: [");
+    printf("após o merge: [");
     for (int i = inicio; i < fim; i++)
       printf(" %d", vetor->dados[i]);
     printf("] \n");

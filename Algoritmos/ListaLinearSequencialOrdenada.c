@@ -1,9 +1,8 @@
 #include "stdio.h"
 #include "stdlib.h"
+#include "stdbool.h"
 
 //contantes lógicos
-#define TRUE 1
-#define FALSE 0
 #define NAO_ENCONTRADO -1
 #define NIL -1
 
@@ -14,14 +13,14 @@
 #define EXCLUIR 4
 #define SAIR 0
 
-typedef struct {
+typedef struct Registro{
   int chave;
 } Registro;
 
-typedef struct {
-  int maximo;    
-  int ultimo;    
-  Registro* Dados; 
+typedef struct ListaSequencialOrdenada{
+  int maximo;
+  int ultimo;
+  Registro* Dados;
 } ListaSequencialOrdenada;
 
 int buscaBinaria(ListaSequencialOrdenada *lista, int chave){
@@ -34,15 +33,15 @@ int buscaBinaria(ListaSequencialOrdenada *lista, int chave){
     else if(lista->Dados[meio].chave < chave)
       esquerda = meio + 1;
     else
-      direita = meio -1;
+      direita = meio - 1;
   }
-  return -1;
+  return NIL;
 }
 
-int exclusaoElementos(ListaSequencialOrdenada *lista, int chave){  
+int exclusaoElementos(ListaSequencialOrdenada *lista, int chave){
   int posicao, contador;
   posicao = buscaBinaria(lista,chave);
-  if(posicao == -1) return 0; 
+  if(posicao == -1) return 0;
   for(contador = posicao;contador<lista->ultimo-1;contador++)
     lista->Dados[contador] = lista->Dados[contador+1];
   lista->ultimo--;
@@ -61,16 +60,17 @@ int insercaoOrdenada(ListaSequencialOrdenada *lista,int chave){
     return 1;
 }
 
-void imprimeVetor(ListaSequencialOrdenada lista) { 
+void imprimeVetor(ListaSequencialOrdenada lista) {
   printf("[ ");
   for (int i = 0; i < lista.maximo; i++) {
     if(i < lista.ultimo)
       printf("%i ", lista.Dados[i].chave);
-    else  
+    else
       printf("NIL ");
   }
   printf("]\n");
 }
+
 
 void reiniciarVetor(ListaSequencialOrdenada *lista) {
   for (int y = 0; y < lista->maximo; y++)
@@ -78,10 +78,21 @@ void reiniciarVetor(ListaSequencialOrdenada *lista) {
   lista->ultimo = 0;
 }
 
+ListaSequencialOrdenada dobraVetor(ListaSequencialOrdenada *lista){
+  ListaSequencialOrdenada novaLista;
+  novaLista.maximo = lista->maximo * 2;
+  novaLista.Dados = (Registro*) malloc(sizeof(Registro) * novaLista.maximo);
+  for(int i = 0; i < lista->ultimo; i++) {
+    novaLista.Dados[i] = lista->Dados[i];
+  }
+  novaLista.ultimo = lista->ultimo;
+  return novaLista;
+}
+
 int lerInteiro(char *mensagem) {
   int valorLido;
   printf("%s", mensagem);
-  while (scanf(" %d", &valorLido) != TRUE) {
+  while (scanf(" %d", &valorLido) != true) {
     while (getchar() != '\n');
     printf("%s", mensagem);
   }
@@ -130,12 +141,13 @@ printf("---------------------------------------"
     case INSERIR:
       system("clear");
       printf("Inserindo...\n");
-      if(listaOrdenada.ultimo == listaOrdenada.maximo){
+      if(!insercaoOrdenada(&listaOrdenada, lerInteiro("Insira um valor inteiro: "))){
         printf("Limite alcançado!\n");
         imprimeVetor(listaOrdenada);
-      }else{
-        tempChave = lerInteiro("Insira aqui o valor da chave que deseja inserir: ");
-        insercaoOrdenada( &listaOrdenada,  tempChave);
+        printf("Dobrando vetor...\n");
+        listaOrdenada = dobraVetor(&listaOrdenada);
+        imprimeVetor(listaOrdenada);
+        printf("Por favor, reinsira o valor desejado!\n");
       }
       break;
     case BUSCAR:
