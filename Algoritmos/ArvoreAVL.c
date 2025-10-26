@@ -180,7 +180,7 @@ No *rebalancear(No *no, Arvore *arvore) {
         no = rotacaoDuplaEsquerda(no);
       }
     }
-    
+
     atualizaAltura(no);
     atualizaFatorBalanceamento(no);
   } else {

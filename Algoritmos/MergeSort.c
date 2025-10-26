@@ -15,6 +15,8 @@
 #define ORDENAR 5
 #define SAIR 0
 
+int totalMergeSorts = 0;
+
 typedef struct Vetor {
   int *dados;
   int ultimo;
@@ -89,10 +91,12 @@ void mergeSort(Vetor *vetor, int inicio, int fim) {
     int meio = (inicio + fim) / 2;
 
     printf("mergesort <%d><%d>: empilhado!\n", inicio, meio);
+    totalMergeSorts++;
     mergeSort(vetor, inicio, meio);
     printf("mergesort <%d><%d>: desempilhado!\n", inicio, meio);
 
     printf("mergesort <%d><%d>: empilhado!\n", meio, fim);
+    totalMergeSorts++;
     mergeSort(vetor, meio, fim);
     printf("mergesort <%d><%d>: desempilhado!\n", meio, fim);
 
@@ -220,6 +224,7 @@ int main(void) {
       mergeSort(&vetor, 0, vetor.ultimo);
       printf("\nMerge Sort completo: ");
       imprimeVetor(vetor);
+      printf("\nTotal chamadas do mergesort: %d");
       break;
     case SAIR:
       system("clear");

@@ -69,6 +69,8 @@ void construirHeap(Vetor* vetor,int tamanho){
 void heapSort(Vetor* vetor,int tamanho){
     totalTrocas = 0;
     totalMaxHeapify = 0;
+
+
     construirHeap(vetor,tamanho);
     for(int indice = tamanho-1; indice > 0 ;indice--){
         int temp = vetor->dados[0];
@@ -78,6 +80,7 @@ void heapSort(Vetor* vetor,int tamanho){
         printf("Após troca no heapSort: ");
         imprimeVetor(*vetor);
 
+        printf("maxHeap <%d>\n",indice);
         maxHeapify(vetor, 0, indice);
     }
 }

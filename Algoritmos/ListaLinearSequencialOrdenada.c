@@ -35,29 +35,29 @@ int buscaBinaria(ListaSequencialOrdenada *lista, int chave){
     else
       direita = meio - 1;
   }
-  return NIL;
+  return NAO_ENCONTRADO;
 }
 
 int exclusaoElementos(ListaSequencialOrdenada *lista, int chave){
   int posicao, contador;
   posicao = buscaBinaria(lista,chave);
-  if(posicao == -1) return 0;
+  if(posicao == NAO_ENCONTRADO) return false;
   for(contador = posicao;contador<lista->ultimo-1;contador++)
     lista->Dados[contador] = lista->Dados[contador+1];
   lista->ultimo--;
-  return 1;
+  return true;
 }
 
 int insercaoOrdenada(ListaSequencialOrdenada *lista,int chave){
-    if(lista->ultimo == lista->maximo) return 0;
+    if(lista->ultimo == lista->maximo) return false;
     int posicao = lista->ultimo;
     while(posicao > 0 && lista->Dados[posicao-1].chave > chave){
-        lista->Dados[posicao] = lista->Dados[posicao-1];
-        posicao--;
+      lista->Dados[posicao] = lista->Dados[posicao-1];
+      posicao--;
     }
     lista->Dados[posicao].chave = chave;
     lista->ultimo++;
-    return 1;
+    return true;
 }
 
 void imprimeVetor(ListaSequencialOrdenada lista) {
@@ -70,7 +70,6 @@ void imprimeVetor(ListaSequencialOrdenada lista) {
   }
   printf("]\n");
 }
-
 
 void reiniciarVetor(ListaSequencialOrdenada *lista) {
   for (int y = 0; y < lista->maximo; y++)
@@ -92,7 +91,7 @@ ListaSequencialOrdenada dobraVetor(ListaSequencialOrdenada *lista){
 int lerInteiro(char *mensagem) {
   int valorLido;
   printf("%s", mensagem);
-  while (scanf(" %d", &valorLido) != true) {
+  while (scanf(" %d", &valorLido) == false) {
     while (getchar() != '\n');
     printf("%s", mensagem);
   }
@@ -105,7 +104,7 @@ int main(void){
 ListaSequencialOrdenada listaOrdenada;
 int opcao,tamanho;
 
-printf("Primeiramente, insira o tamanho(inteiro maior que 0) desejado para o vetor.\n");
+printf("Primeiramente, insira o tamanho(Natural maior que 0) desejado para o vetor.\n");
 
 do{
 tamanho = lerInteiro("Tamanho: ");
@@ -116,10 +115,10 @@ listaOrdenada.maximo = tamanho;
 reiniciarVetor(&listaOrdenada);
 
 do{
-  int tempChave = -1;
+  int tempChave = NIL;
 printf("---------------------------------------"
-              "\nLista Linear Sequencial Ordenada\n"
-              "---------------------------------------\n");
+        "\nLista Linear Sequencial Ordenada\n"
+        "---------------------------------------\n");
   printf(" Digite um número para escolher a opção:  \n"
         " 1 ⟶ Para Imprimir o vetor\n"
         " 2 ⟶ Para inserir um valor\n"
