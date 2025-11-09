@@ -1,214 +1,218 @@
+#include "math.h"
+#include "stdbool.h"
 #include "stdio.h"
 #include "stdlib.h"
-#include "stdbool.h"
+#include <sys/types.h>
 
 // contantes lógicos
 #define NIL -1
 
-// constantes da tabela Hash
-#define VAZIO 0
-#define OCUPADO 1
-#define REMOVIDO 2
-
 // constantes do menu
+#define SAIR 0
 #define VER 1
 #define INSERIR 2
 #define BUSCAR 3
 #define EXCLUIR 4
-#define SAIR 0
 
-// seleção da lista
-#define OPEN 0
-#define CLOSED 1
-
-typedef struct {
-  int chave;
-  int estado;
-} NoOpen; // open addres
+// constantes da tabela Hash
+typedef enum Estado { VAZIO, OCUPADO, REMOVIDO } Estado;
 
 typedef struct No {
   int chave;
   struct No *proximo;
-  struct No *anterior;
-} NoClosed; // closed addres
+} No;
+
+typedef struct Bloco {
+  int chave;
+  Estado estado;
+  struct No *transferencia;
+} Bloco;
 
 typedef struct {
   int tamanho;
   int ocupados;
-  NoOpen *dados;
-  NoClosed **lista;
-  int adress;
+  Bloco *dados;
 } TabelaHash;
 
 int funcaoHash(TabelaHash *tabela, int chave) {
-  return chave % tabela->tamanho;
+  return floor(chave % tabela->tamanho);
 }
 
 void iniciaTabela(TabelaHash *tabela, int tamanho) {
   tabela->tamanho = tamanho;
-  tabela->dados = (NoOpen *)malloc(sizeof(NoOpen) * tamanho);
-  tabela->adress = OPEN;
+  tabela->ocupados = 0;
+  tabela->dados = (Bloco *)malloc(sizeof(Bloco) * tamanho);
+
+  if (tabela->dados == NULL) {
+    tabela->tamanho = 0;
+    return;
+  }
 
   for (int i = 0; i < tamanho; i++) {
     tabela->dados[i].chave = NIL;
     tabela->dados[i].estado = VAZIO;
+    tabela->dados[i].transferencia = NULL;
   }
-  tabela->ocupados = 0;
-  tabela->lista = NULL;
 }
 
 int buscaTabela(TabelaHash *tabela, int chave) {
-  if (tabela->adress == OPEN) {
-    int indice = funcaoHash(tabela, chave);
-    int contador = 0;
-    while (contador < tabela->tamanho) {
-      if (tabela->dados[indice].estado == VAZIO)
-        return NIL;
-      if (tabela->dados[indice].estado == OCUPADO &&
-          tabela->dados[indice].chave == chave)
-        return indice;
-      indice = (indice + 1) % tabela->tamanho; // sondagem linear
-      contador++;
-    }
-    return NIL;
-  } else if (tabela->adress == CLOSED) { // closed addres com lista ligada
-    int indice = funcaoHash(tabela, chave);
-    NoClosed *atual = tabela->lista[indice];
-    while (atual != NULL) {
-      if (atual->chave == chave)
-        return indice;
-      atual = atual->proximo;
-    }
-  }
-  return NIL;
-}
-
-void trocaLista(TabelaHash *tabela) {
-  printf("Mudando para closed addressing...\n");
-  tabela->lista = (NoClosed **)malloc(sizeof(NoClosed *) * tabela->tamanho);
-  for (int i = 0; i < tabela->tamanho; i++) {
-    tabela->lista[i] = NULL;
-  }
-  for (int i = 0; i < tabela->tamanho; i++) {
-    if (tabela->dados[i].estado == OCUPADO) {
-      int chave = tabela->dados[i].chave;
-      int indice = funcaoHash(tabela, chave);
-
-      NoClosed *novo = (NoClosed *)malloc(sizeof(NoClosed));
-      novo->chave = chave;
-      novo->proximo = tabela->lista[indice];
-      novo->anterior = NULL;
-      if (tabela->lista[indice] != NULL)
-        tabela->lista[indice]->anterior = novo;
-
-      tabela->lista[indice] = novo;
-    }
-  }
-  free(tabela->dados);
-  tabela->dados = NULL;
-  tabela->adress = CLOSED;
-}
-
-int inserirTabela(TabelaHash *tabela, int chave) {
-  if (buscaTabela(tabela, chave) != NIL) {
-    printf("Elemento já inserido na tabela!\n");
+  if (tabela == NULL)
     return false;
-  }
 
-  if (tabela->adress == OPEN) {
-    int indice = funcaoHash(tabela, chave);
-    int contador = 0;
+  int busca = funcaoHash(tabela, chave);
 
-    while (contador < tabela->tamanho) {
-      if (tabela->dados[indice].estado != OCUPADO) {
-        tabela->dados[indice].chave = chave;
-        tabela->dados[indice].estado = OCUPADO;
-        tabela->ocupados++;
-        return true;
-      }
-      indice = (indice + 1) % tabela->tamanho;
-      contador++;
+  for (int i = 0; i < tabela->tamanho; i++) { // busca Open
+    int indice = (busca + i) % tabela->tamanho;
+    Bloco *bloco = &tabela->dados[indice];
+
+    if (bloco->estado == VAZIO) {
+      break;
     }
-    printf("Tabela Hash cheia!\n"); // usar closed address hashing
-    trocaLista(tabela);
-    inserirTabela(tabela,chave);
-    return false;
-  } else if (tabela->adress == CLOSED) {
-    int indice = funcaoHash(tabela, chave);
+    if (bloco->estado == OCUPADO && bloco->chave == chave) {
+      return true;
+    }
+  }
+  // busca closed
+  Bloco *bloco = &tabela->dados[busca];
+  No *atual = bloco->transferencia;
 
-    NoClosed *novo = (NoClosed *)malloc(sizeof(NoClosed));
-    novo->chave = chave;
-    novo->proximo = tabela->lista[indice];
-    novo->anterior = NULL;
-
-    if (tabela->lista[indice] != NULL)
-      tabela->lista[indice]->anterior = novo;
-
-    tabela->lista[indice] = novo;
-    tabela->ocupados++;
-    return true;
+  while (atual != NULL) {
+    if (atual->chave == chave) {
+      return true;
+    }
+    atual = atual->proximo;
   }
   return false;
 }
 
-int excluirTabela(TabelaHash *tabela, int chave) {
-  if (tabela->adress == OPEN) {
-    int indice = buscaTabela(tabela, chave);
-    if (indice == NIL) {
-      return false;
-    }
-    tabela->dados[indice].estado = REMOVIDO;
-    tabela->ocupados--;
-    return true;
-  } else if (tabela->adress == CLOSED) {
-    int indice = funcaoHash(tabela, chave);
-    NoClosed *atual = tabela->lista[indice];
-    NoClosed *anterior = NULL;
+void inserirTabela(TabelaHash *tabela, int chave) {
+  if (tabela == NULL || tabela->dados == NULL)
+    return;
 
-    while (atual != NULL) {
-      if (atual->chave == chave) {
-        if (atual->anterior == NULL) {
-          tabela->lista[indice] = atual->proximo;
-          if (atual->proximo != NULL) {
-            atual->proximo->anterior = NULL;
-          }
-        } else {
-          atual->anterior->proximo = atual->proximo;
-          if (atual->proximo != NULL) {
-            atual->proximo->anterior = atual->anterior;
-          }
-        }
-        free(atual);
-        return true;
+  // inserir Open
+  if (tabela->ocupados < tabela->tamanho) {
+    int busca = funcaoHash(tabela, chave);
+
+    for (int i = 0; i < tabela->tamanho; i++) {
+      int indice = (busca + i) % tabela->tamanho;
+      Bloco *bloco = &tabela->dados[indice];
+
+      if (bloco->estado == OCUPADO && bloco->chave == chave) {
+        return;
       }
-      atual = atual->proximo;
+
+      if (bloco->estado == VAZIO || bloco->estado == REMOVIDO) {
+        bloco->chave = chave;
+        bloco->estado = OCUPADO;
+        tabela->ocupados++;
+        return;
+      }
     }
+  }
+
+  int busca = funcaoHash(tabela, chave);
+  Bloco *bloco = &tabela->dados[busca];
+
+  if (bloco->estado == OCUPADO && bloco->chave == chave) {
+    return;
+  }
+
+  No *atual = bloco->transferencia;
+  No *anterior = NULL;
+
+  while (atual != NULL) {
+    if (atual->chave == chave) {
+      return;
+    }
+    anterior = atual;
+    atual = atual->proximo;
+  }
+
+  No *novo = (No *)malloc(sizeof(No));
+  if (novo) {
+    novo->chave = chave;
+    novo->proximo = NULL;
+  } else {
+    return;
+  }
+
+  if (anterior == NULL) {
+    bloco->transferencia = novo;
+  } else {
+    anterior->proximo = novo;
+  }
+}
+
+int excluirTabela(TabelaHash *tabela, int chave) {
+  if (tabela == NULL || tabela->dados == NULL) {
     return false;
+  }
+
+  int busca = funcaoHash(tabela, chave);
+  // remove open
+  for (int i = 0; i < tabela->tamanho; i++) {
+    int indice = (busca + i) % tabela->tamanho;
+    Bloco *bloco = &tabela->dados[indice];
+    if (bloco->estado == VAZIO) {
+      break;
+    }
+
+    if (bloco->estado == OCUPADO && bloco->chave == chave) {
+      bloco->estado = REMOVIDO;
+      bloco->chave = NIL;
+      tabela->ocupados--;
+      return true;
+    }
+  }
+
+  Bloco *bloco = &tabela->dados[busca];
+  No *atual = bloco->transferencia;
+  No *anterior;
+
+  while (atual != NULL) {
+    if (atual->chave == chave) {
+      if (anterior == NULL) {
+        bloco->transferencia = atual->proximo;
+      } else {
+        anterior->proximo = atual->proximo;
+      }
+      free(atual);
+      return true;
+    }
+    anterior = atual;
+    atual = atual->proximo;
   }
   return false;
 }
 
 void imprimeTabela(TabelaHash *tabela) {
-  printf("[ ");
-
-  if (tabela->adress == OPEN) {
-    for (int i = 0; i < tabela->tamanho; i++) {
-      if (tabela->dados[i].estado == REMOVIDO ||
-          tabela->dados[i].estado == VAZIO)
-        printf("NIL ");
-      else
-        printf("%i ", tabela->dados[i].chave);
-    }
-  } else if (tabela->adress == CLOSED) {
-    for (int i = 0; i < tabela->tamanho; i++) {
-      NoClosed *atual = tabela->lista[i];
-      while (atual != NULL) {
-        printf("%i ", atual->chave);
-        atual = atual->proximo;
-      }
-    }
+  if (tabela == NULL || tabela->dados == NULL) {
+    printf("{ }");
+    return;
   }
-  printf("]\n");
+
+  printf("{ ");
+
+  for (int i = 0; i < tabela->tamanho; i++) {
+    Bloco *bloco = &tabela->dados[i];
+
+    if (bloco->estado == OCUPADO) {
+      printf(" %d ", bloco->chave);
+    } else if (bloco->estado == REMOVIDO) {
+      printf(" [X] ");
+    } else {
+      printf(" [-] ");
+    }
+
+    No *temp = tabela->dados[i].transferencia;
+    while (temp != NULL) {
+      printf("-> %i", temp->chave);
+      temp = temp->proximo;
+    }
+    if (i < tabela->tamanho - 1)
+      printf(", ");
+  }
+  printf("}\n");
 }
 
 int lerInteiro(char *mensagem) {
@@ -226,7 +230,8 @@ int main(void) {
   TabelaHash tabela;
   int opcao, tamanho;
 
-  printf("Primeiramente, insira o tamanho(inteiro maior que 0) desejado para o vetor.\n");
+  printf("Primeiramente, insira o tamanho(inteiro maior que 0) desejado para o "
+         "vetor.\n");
 
   do {
     tamanho = lerInteiro("Tamanho: ");
@@ -236,15 +241,10 @@ int main(void) {
 
   do {
     int tempChave = NIL;
-    if(tabela.adress == OPEN){
-      printf("---------------------------------------"
-           "\nLista Linear Sequencial com Tabela Hash\n"
-           "---------------------------------------\n");}
 
-    else if(tabela.adress == CLOSED){
-      printf("------------------------------------------"
-           "\nLista Duplamente Encadeada com Tabela Hash\n"
-           "------------------------------------------\n");}
+    printf("---------------------------------------"
+           "\nTabela Hash Open e Closed Adress Hashing\n"
+           "---------------------------------------\n");
 
     printf(" Digite um número para escolher a opção:  \n"
            " 1 ⟶ Para Imprimir o vetor\n"
@@ -277,7 +277,8 @@ int main(void) {
       tempChave = lerInteiro("Digite o valor que deseja buscar: ");
       int tempBusca = buscaTabela(&tabela, tempChave);
       if (tempBusca != NIL)
-        printf("O valor %i foi encontrado no índice %i.\n", tempChave, tempBusca);
+        printf("O valor %i foi encontrado no índice %i.\n", tempChave,
+               tempBusca);
       else
         printf("%i não esta presente no vetor.\n", tempChave);
       break;
