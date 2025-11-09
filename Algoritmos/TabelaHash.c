@@ -1,10 +1,8 @@
 #include "stdio.h"
 #include "stdlib.h"
+#include "stdbool.h"
 
 // contantes lógicos
-#define TRUE 1
-#define FALSE 0
-#define NAO_ENCONTRADO -1
 #define NIL -1
 
 // constantes da tabela Hash
@@ -20,26 +18,26 @@
 #define SAIR 0
 
 // seleção da lista
-#define SEQUENCIAL 0
-#define ENCADEADA 1
+#define OPEN 0
+#define CLOSED 1
 
 typedef struct {
   int chave;
   int estado;
-} Registro; // open addres
+} NoOpen; // open addres
 
 typedef struct No {
   int chave;
-  struct No *prox;
+  struct No *proximo;
   struct No *anterior;
-} No; // closed addres
+} NoClosed; // closed addres
 
 typedef struct {
   int tamanho;
   int ocupados;
-  Registro *dados;
-  No **lista;
-  int usandoLista;
+  NoOpen *dados;
+  NoClosed **lista;
+  int adress;
 } TabelaHash;
 
 int funcaoHash(TabelaHash *tabela, int chave) {
@@ -48,8 +46,8 @@ int funcaoHash(TabelaHash *tabela, int chave) {
 
 void iniciaTabela(TabelaHash *tabela, int tamanho) {
   tabela->tamanho = tamanho;
-  tabela->dados = (Registro *)malloc(sizeof(Registro) * tamanho);
-  tabela->usandoLista = SEQUENCIAL;
+  tabela->dados = (NoOpen *)malloc(sizeof(NoOpen) * tamanho);
+  tabela->adress = OPEN;
 
   for (int i = 0; i < tamanho; i++) {
     tabela->dados[i].chave = NIL;
@@ -60,34 +58,34 @@ void iniciaTabela(TabelaHash *tabela, int tamanho) {
 }
 
 int buscaTabela(TabelaHash *tabela, int chave) {
-  if (tabela->usandoLista == SEQUENCIAL) {
+  if (tabela->adress == OPEN) {
     int indice = funcaoHash(tabela, chave);
     int contador = 0;
     while (contador < tabela->tamanho) {
       if (tabela->dados[indice].estado == VAZIO)
-        return NAO_ENCONTRADO;
+        return NIL;
       if (tabela->dados[indice].estado == OCUPADO &&
           tabela->dados[indice].chave == chave)
         return indice;
       indice = (indice + 1) % tabela->tamanho; // sondagem linear
       contador++;
     }
-    return NAO_ENCONTRADO;
-  } else if (tabela->usandoLista == ENCADEADA) { // closed addres com lista ligada
+    return NIL;
+  } else if (tabela->adress == CLOSED) { // closed addres com lista ligada
     int indice = funcaoHash(tabela, chave);
-    No *atual = tabela->lista[indice];
+    NoClosed *atual = tabela->lista[indice];
     while (atual != NULL) {
       if (atual->chave == chave)
         return indice;
-      atual = atual->prox;
+      atual = atual->proximo;
     }
   }
-  return NAO_ENCONTRADO;
+  return NIL;
 }
 
 void trocaLista(TabelaHash *tabela) {
   printf("Mudando para closed addressing...\n");
-  tabela->lista = (No **)malloc(sizeof(No *) * tabela->tamanho);
+  tabela->lista = (NoClosed **)malloc(sizeof(NoClosed *) * tabela->tamanho);
   for (int i = 0; i < tabela->tamanho; i++) {
     tabela->lista[i] = NULL;
   }
@@ -96,9 +94,9 @@ void trocaLista(TabelaHash *tabela) {
       int chave = tabela->dados[i].chave;
       int indice = funcaoHash(tabela, chave);
 
-      No *novo = (No *)malloc(sizeof(No));
+      NoClosed *novo = (NoClosed *)malloc(sizeof(NoClosed));
       novo->chave = chave;
-      novo->prox = tabela->lista[indice];
+      novo->proximo = tabela->lista[indice];
       novo->anterior = NULL;
       if (tabela->lista[indice] != NULL)
         tabela->lista[indice]->anterior = novo;
@@ -108,16 +106,16 @@ void trocaLista(TabelaHash *tabela) {
   }
   free(tabela->dados);
   tabela->dados = NULL;
-  tabela->usandoLista = ENCADEADA;
+  tabela->adress = CLOSED;
 }
 
 int inserirTabela(TabelaHash *tabela, int chave) {
-  if (buscaTabela(tabela, chave) != NAO_ENCONTRADO) {
+  if (buscaTabela(tabela, chave) != NIL) {
     printf("Elemento já inserido na tabela!\n");
-    return FALSE;
+    return false;
   }
 
-  if (tabela->usandoLista == SEQUENCIAL) {
+  if (tabela->adress == OPEN) {
     int indice = funcaoHash(tabela, chave);
     int contador = 0;
 
@@ -126,7 +124,7 @@ int inserirTabela(TabelaHash *tabela, int chave) {
         tabela->dados[indice].chave = chave;
         tabela->dados[indice].estado = OCUPADO;
         tabela->ocupados++;
-        return TRUE;
+        return true;
       }
       indice = (indice + 1) % tabela->tamanho;
       contador++;
@@ -134,13 +132,13 @@ int inserirTabela(TabelaHash *tabela, int chave) {
     printf("Tabela Hash cheia!\n"); // usar closed address hashing
     trocaLista(tabela);
     inserirTabela(tabela,chave);
-    return FALSE;
-  } else if (tabela->usandoLista == ENCADEADA) {
+    return false;
+  } else if (tabela->adress == CLOSED) {
     int indice = funcaoHash(tabela, chave);
 
-    No *novo = (No *)malloc(sizeof(No));
+    NoClosed *novo = (NoClosed *)malloc(sizeof(NoClosed));
     novo->chave = chave;
-    novo->prox = tabela->lista[indice];
+    novo->proximo = tabela->lista[indice];
     novo->anterior = NULL;
 
     if (tabela->lista[indice] != NULL)
@@ -148,52 +146,52 @@ int inserirTabela(TabelaHash *tabela, int chave) {
 
     tabela->lista[indice] = novo;
     tabela->ocupados++;
-    return TRUE;
+    return true;
   }
-  return FALSE;
+  return false;
 }
 
 int excluirTabela(TabelaHash *tabela, int chave) {
-  if (tabela->usandoLista == SEQUENCIAL) {
+  if (tabela->adress == OPEN) {
     int indice = buscaTabela(tabela, chave);
-    if (indice == NAO_ENCONTRADO) {
-      return FALSE;
+    if (indice == NIL) {
+      return false;
     }
     tabela->dados[indice].estado = REMOVIDO;
     tabela->ocupados--;
-    return TRUE;
-  } else if (tabela->usandoLista == ENCADEADA) {
+    return true;
+  } else if (tabela->adress == CLOSED) {
     int indice = funcaoHash(tabela, chave);
-    No *atual = tabela->lista[indice];
-    No *anterior = NULL;
+    NoClosed *atual = tabela->lista[indice];
+    NoClosed *anterior = NULL;
 
     while (atual != NULL) {
       if (atual->chave == chave) {
         if (atual->anterior == NULL) {
-          tabela->lista[indice] = atual->prox;
-          if (atual->prox != NULL) {
-            atual->prox->anterior = NULL;
+          tabela->lista[indice] = atual->proximo;
+          if (atual->proximo != NULL) {
+            atual->proximo->anterior = NULL;
           }
         } else {
-          atual->anterior->prox = atual->prox;
-          if (atual->prox != NULL) {
-            atual->prox->anterior = atual->anterior;
+          atual->anterior->proximo = atual->proximo;
+          if (atual->proximo != NULL) {
+            atual->proximo->anterior = atual->anterior;
           }
         }
         free(atual);
-        return TRUE;
+        return true;
       }
-      atual = atual->prox;
+      atual = atual->proximo;
     }
-    return FALSE;
+    return false;
   }
-  return FALSE;
+  return false;
 }
 
 void imprimeTabela(TabelaHash *tabela) {
   printf("[ ");
 
-  if (tabela->usandoLista == SEQUENCIAL) {
+  if (tabela->adress == OPEN) {
     for (int i = 0; i < tabela->tamanho; i++) {
       if (tabela->dados[i].estado == REMOVIDO ||
           tabela->dados[i].estado == VAZIO)
@@ -201,12 +199,12 @@ void imprimeTabela(TabelaHash *tabela) {
       else
         printf("%i ", tabela->dados[i].chave);
     }
-  } else if (tabela->usandoLista == ENCADEADA) {
+  } else if (tabela->adress == CLOSED) {
     for (int i = 0; i < tabela->tamanho; i++) {
-      No *atual = tabela->lista[i];
+      NoClosed *atual = tabela->lista[i];
       while (atual != NULL) {
         printf("%i ", atual->chave);
-        atual = atual->prox;
+        atual = atual->proximo;
       }
     }
   }
@@ -216,7 +214,7 @@ void imprimeTabela(TabelaHash *tabela) {
 int lerInteiro(char *mensagem) {
   int valorLido;
   printf("%s", mensagem);
-  while (scanf(" %d", &valorLido) != TRUE) {
+  while (scanf(" %d", &valorLido) != true) {
     while (getchar() != '\n')
       printf("%s", mensagem);
   }
@@ -238,12 +236,12 @@ int main(void) {
 
   do {
     int tempChave = NIL;
-    if(tabela.usandoLista == SEQUENCIAL){
+    if(tabela.adress == OPEN){
       printf("---------------------------------------"
            "\nLista Linear Sequencial com Tabela Hash\n"
            "---------------------------------------\n");}
 
-    else if(tabela.usandoLista == ENCADEADA){
+    else if(tabela.adress == CLOSED){
       printf("------------------------------------------"
            "\nLista Duplamente Encadeada com Tabela Hash\n"
            "------------------------------------------\n");}
@@ -278,7 +276,7 @@ int main(void) {
       printf("Buscando...\n");
       tempChave = lerInteiro("Digite o valor que deseja buscar: ");
       int tempBusca = buscaTabela(&tabela, tempChave);
-      if (tempBusca != NAO_ENCONTRADO)
+      if (tempBusca != NIL)
         printf("O valor %i foi encontrado no índice %i.\n", tempChave, tempBusca);
       else
         printf("%i não esta presente no vetor.\n", tempChave);
@@ -287,7 +285,7 @@ int main(void) {
       system("clear");
       printf("Excluindo...\n");
       tempChave = lerInteiro("Digite o valor que deseja remover da tabela: ");
-      if (excluirTabela(&tabela, tempChave) == TRUE)
+      if (excluirTabela(&tabela, tempChave) == true)
         printf("Valor removido com sucesso!\n");
       else
         printf("Valor não existe na tabela!\n");
