@@ -7,11 +7,7 @@
 #define NIL -1
 
 // constantes do menu
-#define SAIR 0
-#define VER 1
-#define INSERIR 2
-#define BUSCAR 3
-#define EXCLUIR 4
+typedef enum Menu { SAIR, VER, INSERIR, BUSCAR, EXCLUIR } Menu;
 
 // constantes da tabela Hash
 typedef enum Estado { VAZIO, OCUPADO, REMOVIDO } Estado;
@@ -56,7 +52,7 @@ void iniciaTabela(TabelaHash *tabela, int tamanho) {
 
 int buscaTabela(TabelaHash *tabela, int chave) {
   if (tabela == NULL)
-    return false;
+    return NIL;
 
   int busca = funcaoHash(tabela, chave);
 
@@ -68,7 +64,7 @@ int buscaTabela(TabelaHash *tabela, int chave) {
       break;
     }
     if (bloco->estado == OCUPADO && bloco->chave == chave) {
-      return true;
+      return indice;
     }
   }
   // busca closed
@@ -81,7 +77,7 @@ int buscaTabela(TabelaHash *tabela, int chave) {
     }
     atual = atual->proximo;
   }
-  return false;
+  return NIL;
 }
 
 void inserirTabela(TabelaHash *tabela, int chave) {
@@ -163,6 +159,7 @@ int excluirTabela(TabelaHash *tabela, int chave) {
       return true;
     }
   }
+  // remove closed
 
   Bloco *bloco = &tabela->dados[busca];
   No *atual = bloco->transferencia;
