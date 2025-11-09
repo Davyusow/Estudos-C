@@ -2,7 +2,6 @@
 #include "stdbool.h"
 #include "stdio.h"
 #include "stdlib.h"
-#include <sys/types.h>
 
 // contantes lógicos
 #define NIL -1
@@ -167,7 +166,7 @@ int excluirTabela(TabelaHash *tabela, int chave) {
 
   Bloco *bloco = &tabela->dados[busca];
   No *atual = bloco->transferencia;
-  No *anterior;
+  No *anterior = NULL;
 
   while (atual != NULL) {
     if (atual->chave == chave) {
