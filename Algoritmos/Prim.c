@@ -3,6 +3,18 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+/*
+ exemplo do conteúdo de um arquivo legível:
+
+ 5
+ 0 2 0 6 0
+ 2 0 3 8 5
+ 0 3 0 0 7
+ 6 8 0 0 9
+ 0 5 7 9 0
+
+ */
+
 #define SAIR 0
 #define PRIM 1
 
@@ -89,25 +101,45 @@ bool dentroDoHeap(MinHeap *heap, int vertice) {
   return heap->pos[vertice] < heap->tamanho;
 }
 
-int **lerGrafo(int *valor) {
-  printf("Digite o número de vértices: ");
-  scanf("%d", valor);
+int **lerGrafoDeArquivo(char *nomeArquivo, int *valor) {
+  FILE *arquivo = fopen(nomeArquivo, "r");
 
+  if (arquivo == NULL) {
+    printf("\n[ERRO] Nao foi possivel abrir o arquivo '%s'.\n", nomeArquivo);
+    printf(
+        "Verifique se o nome esta correto e se o arquivo existe na pasta.\n");
+    exit(1); // Encerra o programa se falhar
+  }
+
+  // 1. Lê a primeira linha: o número de vértices (n)
+  fscanf(arquivo, "%d", valor);
+
+  // Aloca as linhas da matriz
   int **grafo = (int **)malloc(*valor * sizeof(int *));
-  printf("Digite a matriz de conectividade (%i x %i): \n", *valor, *valor);
 
+  // 2. Lê as próximas n linhas com os pesos
   for (int i = 0; i < *valor; i++) {
     grafo[i] = (int *)malloc(*valor * sizeof(int));
-    for (int j = 0; j < *valor; j++)
-      scanf(" %i", &grafo[i][j]);
+    for (int j = 0; j < *valor; j++) {
+      fscanf(arquivo, "%d", &grafo[i][j]);
+    }
   }
+
+  fclose(arquivo); // Muito importante fechar o arquivo!
   return grafo;
 }
 
 void prim() {
   int limite;
-  int **grafo = lerGrafo(&limite);
+  char nomeArquivo[100]; // Buffer para o nome do arquivo
 
+  system("ls");
+  printf("Digite o nome do arquivo: ");
+  scanf("%s", nomeArquivo);
+
+  int **grafo = lerGrafoDeArquivo(nomeArquivo, &limite);
+
+  // --- O RESTO DO CÓDIGO CONTINUA IGUAL ---
   int parente[limite];
   int chave[limite];
   MinHeap *heap = criarMinHeap(limite);
@@ -142,7 +174,7 @@ void prim() {
   for (int indice = 1; indice < limite; indice++) {
     if (parente[indice] != -1) {
       printf("%d - %d \t%d\n", parente[indice], indice,
-             grafo[indice][parente[indice]]);
+             grafo[parente[indice]][indice]);
     }
   }
 
