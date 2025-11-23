@@ -6,6 +6,18 @@
 #define SAIR 0
 #define DIJKSTRA 1
 
+/*
+ exemplo do conteúdo de um arquivo legível:
+
+ 5
+ 0 2 0 6 0
+ 2 0 3 8 5
+ 0 3 0 0 7
+ 6 8 0 0 9
+ 0 5 7 9 0
+
+ */
+
 typedef struct No {
   int vertice;
   int chave;
@@ -104,12 +116,45 @@ int **lerGrafo(int *valor) {
   return grafo;
 }
 
+int **lerGrafoDoArquivo(char *nomeArquivo, int *valor) {
+  FILE *arquivo = fopen(nomeArquivo, "r");
+
+  if (arquivo == NULL) {
+    printf("\n[ERRO] Nao foi possivel abrir o arquivo '%s'.\n", nomeArquivo);
+    exit(1);
+  }
+
+  fscanf(arquivo, "%d", valor);
+  int **grafo = (int **)malloc(*valor * sizeof(int *));
+
+  for (int i = 0; i < *valor; i++) {
+    grafo[i] = (int *)malloc(*valor * sizeof(int));
+    for (int j = 0; j < *valor; j++) {
+      fscanf(arquivo, "%d", &grafo[i][j]);
+    }
+  }
+
+  fclose(arquivo);
+  return grafo;
+}
+
 void dijkstra() {
   int limite, origem;
-  int **grafo = lerGrafo(&limite);
+  char nomeArquivo[100];
+
+  system("ls");
+  printf("Digite o nome do arquivo de entrada (ex: grafo.txt): ");
+  scanf("%s", nomeArquivo);
+
+  int **grafo = lerGrafoDoArquivo(nomeArquivo, &limite);
 
   printf("Digite o vértice de origem (0 a %i): ", limite - 1);
   scanf(" %i", &origem);
+
+  if (origem < 0 || origem >= limite) {
+    printf("Vértice de origem inválido!\n");
+    return;
+  }
 
   int dist[limite];
   MinHeap *heap = criarMinHeap(limite);
@@ -130,7 +175,7 @@ void dijkstra() {
     int u = minimo.vertice;
 
     for (int v = 0; v < limite; v++) {
-      if (grafo[u][v] && dist[u] != INT_MAX &&
+      if (grafo[u][v] && dentroDoHeap(heap, v) && dist[u] != INT_MAX &&
           dist[u] + grafo[u][v] < dist[v]) {
         dist[v] = dist[u] + grafo[u][v];
         reduzChave(heap, v, dist[v]);
