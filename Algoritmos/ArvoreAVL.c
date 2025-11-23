@@ -4,6 +4,15 @@
 #include "stdlib.h"
 #include "string.h"
 
+/* #### Avisos!!
+ * O arquivo de entrada deve estar no mesmo diretório do código;
+ * O arquivo foi primariamente desenvolvido em linux
+ * O arquivo de saída estara no mesmo diretório do código com nome
+ * "resultado.log"
+ * A altura da árvore começa por 0
+ * Como tentativa de facilitar a leitura do log (@ indica rotação) ($ indica inserção)
+ */
+
 #define VER 1
 #define INSERIR 2
 #define BUSCAR 3
@@ -150,8 +159,8 @@ void imprimirFormatado(No *no) {
 void imprimir(No *no) {
   if (no != NULL) {
     imprimir(no->esquerda);
-    imprimeLog("%i (false: %i Altura: %i) ", no->dado,
-           no->fatorfalse, no->altura);
+    imprimeLog("%i (false: %i Altura: %i) ", no->dado, no->fatorfalse,
+               no->altura);
     imprimir(no->direita);
   }
 }
@@ -184,25 +193,25 @@ No *rebalancear(No *no, Arvore *arvore) {
       if (dir->fatorfalse >= 0) {
         imprimeLog("nó responsável: %d\n", no->dado);
         imprimirFormatado(arvore->raiz);
-        imprimeLog("\nrotação à esquerda.\n");
+        imprimeLog("\n@ rotação à esquerda.\n");
         no = rotacaoEsquerda(no);
       } else {
         imprimeLog("nó responsavel: %d\n", no->dado);
         imprimirFormatado(arvore->raiz);
-        imprimeLog("\nrotação dupla direita.\n");
+        imprimeLog("\n@ rotação dupla direita.\n");
         no = rotacaoDuplaDireita(no);
       }
     } else {
       No *esq = no->esquerda;
       if (esq->fatorfalse <= 0) {
-        imprimeLog("nó responsavel: %d\n", no->dado);
+        imprimeLog("@ nó responsavel: %d\n", no->dado);
         imprimirFormatado(arvore->raiz);
-        imprimeLog("\nrotação direita.\n");
+        imprimeLog("\n@ rotação direita.\n");
         no = rotacaoDireita(no);
       } else {
-        imprimeLog("nó responsável: %d\n", no->dado);
+        imprimeLog("@ nó responsável: %d\n", no->dado);
         imprimirFormatado(arvore->raiz);
-        imprimeLog("\nrotação dupla a esquerda.\n");
+        imprimeLog("\n@ rotação dupla a esquerda.\n");
         no = rotacaoDuplaEsquerda(no);
       }
     }
@@ -230,7 +239,7 @@ void inserirAVL(Arvore *arvore, int chave) {
 
   if (arvore->raiz == NULL) {
     arvore->raiz = novo;
-    imprimeLog("Inserido %d. Árvore vazia, %d é a raiz.\n", chave, chave);
+    imprimeLog("$ Inserido %d. Árvore vazia, %d é a raiz.\n", chave, chave);
     return;
   }
 
@@ -256,7 +265,7 @@ void inserirAVL(Arvore *arvore, int chave) {
     pai->direita = novo;
   }
   novo->pai = pai;
-  imprimeLog("Inserido %d como filho de %d.\n", chave, pai->dado);
+  imprimeLog("$ Inserido %d como filho de %d.\n", chave, pai->dado);
 
   No *temp = pai;
   while (temp != NULL) {
@@ -364,13 +373,16 @@ void processarArquivo(char *caminhoDoArquivo) {
     while (elemento != NULL) {
       int valor = atoi(elemento);
       inserirAVL(&arvore, valor);
+      imprimirFormatado(arvore.raiz);
+      imprimeLog("\n");
+      imprimeLog("Altura da árvore: %d\n", alturaArvore(&arvore)+1);
       elemento = strtok(NULL, " \n");
     }
     imprimeLog("Resultado do conjunto:\n[");
     imprimirFormatado(arvore.raiz);
-    imprimeLog("]\nAltura da árvore: %d\n", alturaArvore(&arvore));
-    imprimeLog("\n");
+    imprimeLog("]\n\n\n");
   }
+
   fclose(arquivo);
 }
 
@@ -382,15 +394,15 @@ int main(void) {
 
   do {
     imprimeLog("---------------------------------------"
-           "\n\tÁrvore AVL\n"
-           "---------------------------------------\n");
+               "\n\tÁrvore AVL\n"
+               "---------------------------------------\n");
     imprimeLog(" Digite um número para escolher a opção:  \n"
-           " 1 -> Para Imprimir a árvore\n"
-           " 2 -> Para inserir um valor\n"
-           " 3 -> Para buscar um valor\n"
-           " 4 -> Para excluir um valor\n"
-           " 5 -> Para ler um arquivo\n"
-           " 0 -> Para sair\n");
+               " 1 -> Para Imprimir a árvore\n"
+               " 2 -> Para inserir um valor\n"
+               " 3 -> Para buscar um valor\n"
+               " 4 -> Para excluir um valor\n"
+               " 5 -> Para ler um arquivo\n"
+               " 0 -> Para sair\n");
     opcao = lerInteiro("Opção: ");
 
     switch (opcao) {
@@ -424,14 +436,14 @@ int main(void) {
       No *tempBusca = busca(&arvore, tempChave);
       if (tempBusca != NULL) {
         imprimeLog("O valor %i foi encontrado.\n", tempChave);
-        imprimeLog("Fator de false: %i, Altura: %i\n",
-               tempBusca->fatorfalse, tempBusca->altura);
+        imprimeLog("Fator de false: %i, Altura: %i\n", tempBusca->fatorfalse,
+                   tempBusca->altura);
         if (tempBusca->esquerda != NULL)
           imprimeLog("O valor à esquerda de %i é %i\n", tempChave,
-                 tempBusca->esquerda->dado);
+                     tempBusca->esquerda->dado);
         if (tempBusca->direita != NULL)
           imprimeLog("O valor à direita de %i é %i\n", tempChave,
-                 tempBusca->direita->dado);
+                     tempBusca->direita->dado);
       } else {
         imprimeLog("%i não está presente na árvore.\n", tempChave);
       }
@@ -452,7 +464,7 @@ int main(void) {
       char caminho[256];
       system("ls");
       getchar();
-      scanf(" %s",caminho);
+      scanf(" %s", caminho);
       processarArquivo(caminho);
     }
   } while (opcao != SAIR);
