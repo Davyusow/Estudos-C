@@ -170,7 +170,7 @@ int lerInteiro(char *mensagem) {
 int main(void) {
 
   int opcao;
-  
+
   do {
     printf("----------------------------------------"
            "\n Grafo com algorítmo de Dijkstra\n"
@@ -184,7 +184,7 @@ int main(void) {
       printf("Opção inválida!");
       break;
     case DIJKSTRA:
-        dijkstra();
+      dijkstra();
       break;
     case SAIR:
       printf("Até logo!\n");

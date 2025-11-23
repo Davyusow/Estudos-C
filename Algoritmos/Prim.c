@@ -141,7 +141,8 @@ void prim() {
   printf("Aresta \tPeso\n");
   for (int indice = 1; indice < limite; indice++) {
     if (parente[indice] != -1) {
-      printf("%d - %d \t%d\n", parente[indice], indice, grafo[indice][parente[indice]]);
+      printf("%d - %d \t%d\n", parente[indice], indice,
+             grafo[indice][parente[indice]]);
     }
   }
 
