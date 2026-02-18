@@ -1,7 +1,7 @@
 #include "stdio.h"
 
 int main(void){
-    char sexo; short idade; float peso,altura;
+    char sexo; int idade; float peso,altura;
     printf("Insira seu sexo [F/M]: "); sexo = getchar();
     printf("\nInsira sua idade: "); scanf("%i",&idade);
     printf("\nInsira seu peso (Kg): "); scanf("%f",&peso);

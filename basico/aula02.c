@@ -11,7 +11,7 @@ int main(void){
     printf("\n--------------------------------\n");
     //%i separa o local para a impressão de um valor inteiro (int)
     //o printf retorna valores inteiros:
-    printf("Valor recebido: %i",printf("Oi"));  //é possível fazer uma função print dela mesma
+    printf("Valor recebido: %i",printf("Oi\n"));  //é possível fazer uma função print dela mesma
     //o printf(); retorna o número de caractéres inclusos nas aspas, incluindo também \n e \n por exemplo
     return 0;
 }

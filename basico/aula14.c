@@ -2,7 +2,7 @@
 
 int main(void){
     char a,b;
-    
+
     printf("Digite uma letra: ");
     scanf("%c",&a);
     getchar(); //captura o caractere entre as duas leituras

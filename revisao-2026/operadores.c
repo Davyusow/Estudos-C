@@ -33,7 +33,7 @@ int main(void) {
 
   // Multiplicação
   {
-    printf("## Subtração ##\n\n");
+    printf("## Multiplicação ##\n\n");
     int resultado = 18 * 2;
     printf("18 X 2 = %i\n", resultado);
 
