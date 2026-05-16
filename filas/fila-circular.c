@@ -7,7 +7,7 @@ typedef struct no {
   struct no *proximo;
 } No;
 
-// Fila de prioridade
+// Fila circular
 typedef struct fila {
   No *primeiro;
   No *ultimo;
@@ -20,7 +20,7 @@ void criarFila(Fila *fila) {
   fila->tam = 0;
 }
 
-void inserirComPrioridade(Fila *fila, int num) {
+void inserir(Fila *fila, int num) {
   No *aux, *novo = malloc(sizeof(No));
   if (novo) {
     novo->valor = num;
@@ -28,24 +28,9 @@ void inserirComPrioridade(Fila *fila, int num) {
     if (fila->primeiro == NULL) {
       fila->primeiro = novo;
       fila->ultimo = novo;
-    } else { // é prioridade?
-      if (num > 59) {
-        if (fila->primeiro->valor < 60) {
-          novo->proximo = fila->primeiro;
-          fila->primeiro = novo;
-          fila->tam++;
-        } else {
-          aux = fila->primeiro;
-          while (aux->proximo && aux->proximo->valor > 59) {
-            aux = aux->proximo;
-          }
-          novo->proximo = aux->proximo;
-          aux->proximo = novo;
-        }
-      } else {
-        fila->ultimo->proximo = novo;
-        fila->ultimo = novo;
-      }
+    } else {
+      fila->ultimo->proximo = novo;
+      fila->ultimo = novo;
     }
     fila->tam++;
   }
@@ -103,12 +88,10 @@ int main(void) {
     scanf("%i", &opcao);
     switch (opcao) {
     case INSERIR:
-      inserirComPrioridade(&fila, lerInteiro("Digite um valor: "));
+      inserir(&fila, lerInteiro("Digite um valor: "));
       break;
     case REMOVER:
       removido = remover(&fila);
-      if (removido)
-        break;
     case IMPRIMIR:
       imprimir(&fila);
       break;

@@ -1,11 +1,10 @@
+#include "locale.h"
+#include "stdbool.h"
 #include "stdio.h"
 #include "stdlib.h"
 
 // contantes lógicos
-#define TRUE 1
-#define FALSE 0
 #define NAO_ENCONTRADO -1
-#define NIL -1
 
 // constantes do menu
 #define VER 1
@@ -14,6 +13,8 @@
 #define EXCLUIR 4
 #define ORDENAR 5
 #define SAIR 0
+
+#define OS "clear" // linux: clear, windows: cls
 
 int totalMergeSorts = 0;
 
@@ -31,8 +32,11 @@ void imprimeVetor(Vetor vetor) {
   printf("]\n");
 }
 
-Vetor atribui(Vetor *pai, int inicio, int fim) {
-  Vetor filho;
+/*
+ * Aloca memória e inicia os dados
+ */
+Vetor alocar(Vetor *pai, int inicio, int fim) {
+  Vetor filho = {0};
   filho.tamanho = fim - inicio;
   filho.dados = (int *)malloc(filho.tamanho * sizeof(int));
   filho.ultimo = filho.tamanho;
@@ -50,26 +54,22 @@ Vetor atribui(Vetor *pai, int inicio, int fim) {
   return filho;
 }
 
+void printMerge(Vetor *esquerda, Vetor *direita) {
+  printf("merge: [");
+  for (int i = 0; i < esquerda->tamanho; i++)
+    printf(" %d", esquerda->dados[i]);
+  printf(" ] + [");
+  for (int i = 0; i < direita->tamanho; i++)
+    printf(" %d", direita->dados[i]);
+  printf(" ]\n");
+}
+
 void merge(Vetor *vetor, int inicio, int meio, int fim) {
-  Vetor esquerda = atribui(vetor, inicio, meio);
-  Vetor direita = atribui(vetor, meio, fim);
+  Vetor esquerda = alocar(vetor, inicio, meio);
+  Vetor direita = alocar(vetor, meio, fim);
   int L = 0, R = 0;
 
-  if (esquerda.dados == NULL || direita.dados == NULL) {
-    if (esquerda.dados != NULL)
-      free(esquerda.dados);
-    if (direita.dados != NULL)
-      free(direita.dados);
-    return;
-  }
-
-  printf("merge: [");
-  for (int i = 0; i < esquerda.tamanho; i++)
-    printf(" %d", esquerda.dados[i]);
-  printf(" ] + [");
-  for (int i = 0; i < direita.tamanho; i++)
-    printf(" %d", direita.dados[i]);
-  printf(" ]\n");
+  printMerge(&esquerda, &direita);
 
   for (int contador = inicio; contador < fim; contador++) {
     if (L >= esquerda.tamanho)
@@ -86,37 +86,46 @@ void merge(Vetor *vetor, int inicio, int meio, int fim) {
   free(direita.dados);
 }
 
+void printMergeSort(int n1, int n2) {
+  printf("mergesort <%d><%d>: empilhado!\n", n1, n2);
+}
+void printPosMergeSort(int n1, int n2) {
+  printf("mergesort <%d><%d>: desempilhado!\n", n1, n2);
+}
+
+void printPosMerge(Vetor *vetor, int inicio, int fim) {
+  printf("após o merge: [");
+  for (int i = inicio; i < fim; i++)
+    printf(" %d", vetor->dados[i]);
+  printf("] \n");
+}
+
 void mergeSort(Vetor *vetor, int inicio, int fim) {
   if (fim - inicio > 1) {
     int meio = (inicio + fim) / 2;
 
-    printf("mergesort <%d><%d>: empilhado!\n", inicio, meio);
+    printMergeSort(inicio, meio);
     totalMergeSorts++;
     mergeSort(vetor, inicio, meio);
-    printf("mergesort <%d><%d>: desempilhado!\n", inicio, meio);
+    printPosMergeSort(inicio, fim);
 
-    printf("mergesort <%d><%d>: empilhado!\n", meio, fim);
+    printMergeSort(inicio, fim);
     totalMergeSorts++;
     mergeSort(vetor, meio, fim);
-    printf("mergesort <%d><%d>: desempilhado!\n", meio, fim);
+    printPosMergeSort(inicio, fim);
 
-    printf("merge <%d><%d><%d>\n", inicio, meio, fim);
     merge(vetor, inicio, meio, fim);
-
-    printf("após o merge: [");
-    for (int i = inicio; i < fim; i++)
-      printf(" %d", vetor->dados[i]);
-    printf("] \n");
+    printPosMerge(vetor, inicio, fim);
   }
 }
 
 int buscaSequencial(Vetor *vetor, int chave) {
   int indice = 0;
   while (indice < vetor->ultimo) {
-    if (chave == vetor->dados[indice])
+    if (chave == vetor->dados[indice]){
       return indice;
-    else
-      indice++;
+    }
+    indice++;
   }
   return NAO_ENCONTRADO;
 }
@@ -139,17 +148,17 @@ int excluir(Vetor *vetor, int chave) {
   int indice;
   int posicao = buscaSequencial(vetor, chave);
   if (posicao == NAO_ENCONTRADO)
-    return FALSE;
+    return false;
   for (indice = posicao; indice < vetor->ultimo - 1; indice++)
     vetor->dados[indice] = vetor->dados[indice + 1];
-  --vetor->ultimo;
-  return TRUE;
+  vetor->ultimo-=1;
+  return true;
 }
 
 int lerInteiro(char *mensagem) {
   int valorLido;
   printf("%s", mensagem);
-  while (scanf(" %d", &valorLido) != TRUE) {
+  while (scanf(" %d", &valorLido) != true) {
     while (getchar() != '\n')
       ;
     printf("%s", mensagem);
@@ -158,6 +167,7 @@ int lerInteiro(char *mensagem) {
 }
 
 int main(void) {
+  setlocale(LC_ALL, ""); // linguagem do OS
   Vetor vetor;
   int opcao, tempChave = NAO_ENCONTRADO;
   vetor.dados = (int *)malloc(sizeof(int) * 1);
@@ -179,16 +189,16 @@ int main(void) {
 
     switch (opcao) {
     default:
-      system("clear");
+      system(OS);
       printf("Opção inválida!\n");
       break;
     case VER:
-      system("clear");
+      system(OS);
       printf("Imprimindo...\n");
       imprimeVetor(vetor);
       break;
     case INSERIR:
-      system("clear");
+      system(OS);
       printf("Inserindo...\n");
       vetor.dados =
           (int *)realloc(vetor.dados, sizeof(int) * (vetor.tamanho + 1));
@@ -198,7 +208,7 @@ int main(void) {
       insercaoSequencial(&vetor, tempChave);
       break;
     case BUSCAR:
-      system("clear");
+      system(OS);
       printf("Buscando...\n");
       tempChave = lerInteiro("Digite o valor que deseja buscar: ");
       int tempBusca = buscaSequencial(&vetor, tempChave);
@@ -209,7 +219,7 @@ int main(void) {
         printf("%i não esta presente no vetor.\n", tempChave);
       break;
     case EXCLUIR:
-      system("clear");
+      system(OS);
       printf("Excluindo...\n");
       tempChave = lerInteiro("Digite o valor que deseja remover da lista: ");
       tempBusca = buscaSequencial(&vetor, tempChave);
@@ -219,15 +229,15 @@ int main(void) {
         printf("O valor %i não foi encontrado no vetor.\n", tempChave);
       break;
     case ORDENAR:
-      system("clear");
+      system(OS);
       printf("Ordenando...\n");
       mergeSort(&vetor, 0, vetor.ultimo);
       printf("\nMerge Sort completo: ");
       imprimeVetor(vetor);
-      printf("\nTotal chamadas do mergesort: %d");
+      printf("\nTotal chamadas do mergesort: %d\n", totalMergeSorts);
       break;
     case SAIR:
-      system("clear");
+      system(OS);
       printf("Saindo...\n");
       break;
     }

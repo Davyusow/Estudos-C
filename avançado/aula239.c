@@ -7,6 +7,7 @@ typedef struct no {
   struct no *proximo;
 } No;
 
+// Fila circular
 typedef struct fila {
   No *primeiro;
   No *ultimo;

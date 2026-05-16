@@ -107,8 +107,6 @@ int main(void) {
       break;
     case REMOVER:
       removido = remover(&fila);
-      if (removido)
-        break;
     case IMPRIMIR:
       imprimir(&fila);
       break;
